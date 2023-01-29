@@ -2,7 +2,7 @@
 
 uint8_t Systick_Callback(void){
   //This function would be called in Systick Interrupt handler
-	
+  is_ex_occur = 1;
   return 1;
 }
 
