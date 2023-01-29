@@ -48,9 +48,9 @@ const RCC_conf clock_tree_conf_cst[NUM_OF_CLKTREE_INSTANCE]={
 			PLLx9 //x9
 		}, 
 		SYS_PLL, //system clock source is PLL
-		AHB_NO_DIVISION, //System clock freq = 72/8 = 9MHz
+		AHB_DIV_2, //System clock freq = 72/8 = 9MHz
 		APB_DIV_2,
-		APB_NO_DIVISION,
+		APB_DIV_2,
 	}
 };
 
@@ -63,6 +63,7 @@ void Clock_tree_init(uint8_t clock_tree_profile){
 
   const RCC_conf temp_clock_tree_config = clock_tree_conf_cst[clock_tree_profile];
 
+	//Clock source configuration
 	//Further configuration is needed for PLL only, HSI & HSE doesn't need any configuration but switching the source	 
 	uint32_t current_sysclock_src_u32 = (*temp_clock_tree_config.clock_config_reg & SYSCLOCKSRC_Mask) >> 2; //bit index is 2-3
 
@@ -77,21 +78,26 @@ void Clock_tree_init(uint8_t clock_tree_profile){
 			}
 
 			*temp_clock_tree_config.clock_src_control_reg &= ~PLLON_bit_pos; //disable PLL to configure PLL component
-			*temp_clock_tree_config.clock_config_reg |= (temp_clock_tree_config.clock_src_PLL.PLL_Clock_src << 16); //bit 16 is bit clock src
-			*temp_clock_tree_config.clock_config_reg |= (temp_clock_tree_config.clock_src_PLL.Multiplier << 18); //bit 18-21 are multiplier configuration
+			*temp_clock_tree_config.clock_config_reg |= (uint32_t)temp_clock_tree_config.clock_src_PLL.PLL_Clock_src << 16; //bit 16 is bit clock src
+			*temp_clock_tree_config.clock_config_reg |= (uint32_t)temp_clock_tree_config.clock_src_PLL.Multiplier << 18; //bit 18-21 are multiplier configuration
 
 			//switch back to PLL
-			*temp_clock_tree_config.clock_config_reg |= temp_clock_tree_config.systick_clock_src;
-			*temp_clock_tree_config.clock_src_control_reg |= PLLON_bit_pos;
+			*temp_clock_tree_config.clock_config_reg |= (uint32_t)temp_clock_tree_config.systick_clock_src;
+			*temp_clock_tree_config.clock_src_control_reg |= (uint32_t)PLLON_bit_pos;
 			break;
 		case SYS_HSI:
 			//Enable condition Check for PLL configuration
 			if(!is_HSI_src_available()) break;
-			*temp_clock_tree_config.clock_config_reg |= temp_clock_tree_config.systick_clock_src;
+			*temp_clock_tree_config.clock_config_reg |= (uint32_t)temp_clock_tree_config.systick_clock_src;
 			break;
 		case SYS_HSE: 
 			if(!is_HSE_src_available()) break;
-			*temp_clock_tree_config.clock_config_reg |= temp_clock_tree_config.systick_clock_src;
+			*temp_clock_tree_config.clock_config_reg |= (uint32_t)temp_clock_tree_config.systick_clock_src;
 			break;
 	}
+
+	//AHB prescaler configuration
+	*temp_clock_tree_config.clock_config_reg |= (uint32_t)temp_clock_tree_config.AHB_prescaler << 4; //bit 4-7 are AHB_prescaler
+	*temp_clock_tree_config.clock_config_reg |= (uint32_t)temp_clock_tree_config.APB1_prescaler << 8; //bit 8-10 are APB1_prescaler
+	*temp_clock_tree_config.clock_config_reg |= (uint32_t)temp_clock_tree_config.APB2_prescaler << 11; //bit 11-13 are APB2_prescaler
 }
