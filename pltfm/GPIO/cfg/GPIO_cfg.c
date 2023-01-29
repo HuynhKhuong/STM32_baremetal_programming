@@ -80,36 +80,11 @@ void GPIO_Init(void){
     temp_pin_conf_str = GPIO_conf_cst[i];
 
     //check pre-condition to configure port RCC
-    switch(temp_pin_conf_str.GPIO_Port_RCC_cfg_str.Conf_bit_u32){
-      case PORT_A_Enable_bit: 
-        if(!is_portA_configured){
-          is_portA_configured = 1; //Only configure port RCC once 
-          *(temp_pin_conf_str.GPIO_Port_RCC_cfg_str.Conf_reg_u32) &= ~(PORT_A_Enable_bit); 
-          *(temp_pin_conf_str.GPIO_Port_RCC_cfg_str.Conf_reg_u32) |= PORT_A_Enable_bit;
-        }
-        break;
-      case PORT_B_Enable_bit:
-        if(!is_portB_configured){
-          is_portB_configured = 1; //Only configure port RCC once 
-          *(temp_pin_conf_str.GPIO_Port_RCC_cfg_str.Conf_reg_u32) &= ~(PORT_B_Enable_bit); 
-          *(temp_pin_conf_str.GPIO_Port_RCC_cfg_str.Conf_reg_u32) |= PORT_B_Enable_bit;
-        }
-      break;
-      case PORT_C_Enable_bit:
-        if(!is_portC_configured){
-          is_portC_configured = 1; //Only configure port RCC once 
-          *(temp_pin_conf_str.GPIO_Port_RCC_cfg_str.Conf_reg_u32) &= ~(PORT_C_Enable_bit); 
-          *(temp_pin_conf_str.GPIO_Port_RCC_cfg_str.Conf_reg_u32) |= PORT_C_Enable_bit;
-        }
-      break;
-      case PORT_D_Enable_bit:
-        if(!is_portD_configured){
-          is_portD_configured = 1; //Only configure port RCC once 
-          *(temp_pin_conf_str.GPIO_Port_RCC_cfg_str.Conf_reg_u32) &= ~(PORT_D_Enable_bit); 
-          *(temp_pin_conf_str.GPIO_Port_RCC_cfg_str.Conf_reg_u32) |= PORT_D_Enable_bit;
-        }
-      break;
-    }
+		if(*(temp_pin_conf_str.is_port_configured) == 0){
+			*(temp_pin_conf_str.is_port_configured) = 1; //Only configure port RCC once 
+      *(temp_pin_conf_str.GPIO_Port_RCC_cfg_str.Conf_reg_u32) &= ~(temp_pin_conf_str.GPIO_Port_RCC_cfg_str.Conf_bit_u32); 
+      *(temp_pin_conf_str.GPIO_Port_RCC_cfg_str.Conf_reg_u32) |= temp_pin_conf_str.GPIO_Port_RCC_cfg_str.Conf_bit_u32;
+		}
     
     //Pin configuration
     CNF_MODE_bits_u8 = temp_pin_conf_str.Pin_Mode;
