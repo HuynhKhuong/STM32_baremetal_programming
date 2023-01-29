@@ -38,7 +38,8 @@ const RCC_conf clock_tree_conf_cst[NUM_OF_CLKTREE_INSTANCE]={
   {
 		/*
 			@brief: configration 1
-			Source: HSE 8MHz -> PLL -> 72MHz -> AHB = 72MHz, SYSCLK = AHB/8, APB1 = 36MHz (Max), APB2 = 72MHz(Max)
+			Source: HSE 8MHz -> PLL -> 72MHz -> AHB = SYSCLK = 72MHz,  APB1 = 36MHz (Max), APB2 = 72MHz(Max)
+			Systick interrupt occurs every 1ms: Reload value = 72000
 		*/
 		&(RCC->CR),
 		&(RCC->CFGR),
@@ -48,9 +49,10 @@ const RCC_conf clock_tree_conf_cst[NUM_OF_CLKTREE_INSTANCE]={
 			PLLx9 //x9
 		}, 
 		SYS_PLL, //system clock source is PLL
-		AHB_DIV_2, //System clock freq = 72/8 = 9MHz
+		AHB_NO_DIVISION, //System clock freq = 72/8 = 9MHz
 		APB_DIV_2,
-		APB_DIV_2,
+		APB_NO_DIVISION,
+		72000 //SYStick Reload value
 	}
 };
 

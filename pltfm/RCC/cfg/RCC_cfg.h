@@ -7,11 +7,6 @@
 
 #define NUM_OF_CLKTREE_INSTANCE 1
 
-//member struct configuring systick
-typedef struct{
-  uint32_t dummy_value;
-}SysTick_Conf;
-
 //member enum configuring PLL_multiplier
 typedef enum{
   PLLx4 = (uint8_t)2,
@@ -67,9 +62,26 @@ typedef enum{
 }APB_division;
 
 /*
-  commentary section showing desired OUTPUT: 
-  SYSclock freq, AHB freq, APB freq
+  Arm Cortex M3 CPU has its own 24-bit timer which is called System_timer/systick
+  That counts down from the reload value to zero, reloads the value of SYST_RVR register on the next clock edge
 
+  There are 4 registers to manipulate the Systick:
+  - SYST_CSR: Control & Status Register
+  - SYST_RVR: Reload value register
+  - SYST_CVR: Current value register
+  - SYST_CALIB: Don't pay attention 
+  
+  Clock source for Systick are Core-clock coming from AHB bus clock and external core-clock coming from AHB bus clock/8 (both are eeded by RCC)
+  
+  To configure the reload value, we have to align with the frequency of the RCC's clock source
+
+  For more info: Read Arm Cortex M3 manual reference
+
+  //Interrupt configuration for systick
+
+  To disable systick interrupt, use PRIMASK register. It would prevent any exceptions with configurable priority from being active
+
+  Systick register locates in 'core_cm3.h'
 */
 
 //main struct
@@ -84,6 +96,8 @@ typedef struct{
   AHB_division AHB_prescaler;
   APB_division APB1_prescaler;
   APB_division APB2_prescaler;
+  //Systick configuration
+  uint32_t Systick_reload_val_u32;
 }RCC_conf;
 
 
