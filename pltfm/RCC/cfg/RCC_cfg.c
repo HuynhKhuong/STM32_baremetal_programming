@@ -52,9 +52,49 @@ const RCC_conf clock_tree_conf_cst[NUM_OF_CLKTREE_INSTANCE]={
 		AHB_NO_DIVISION, //System clock freq = 72/8 = 9MHz
 		APB_DIV_2,
 		APB_NO_DIVISION,
-		72000 //SYStick Reload value
+		71999 //SYStick Reload value 0 -> 71999 = 72000
 	}
 };
+
+
+/*
+	@brief: Systick configuration function, Configure Reload value to Choose clock source & Enable interrupt
+	@input: reload value to Reload value register
+*/
+static void Systick_Initialization(const uint32_t reload_val_u32){
+    /*
+			Procedure: 
+        + Program reload value
+        + Clear current value
+        + Program control and Status register
+    */
+    volatile uint32_t *RVR_reg = &SysTick->LOAD;
+		volatile uint32_t *CVR_reg = &SysTick->VAL;
+		volatile uint32_t *CSR_reg = &SysTick->CTRL;
+
+    *RVR_reg = ((reload_val_u32)&0x00FFFFFF);
+    *CVR_reg = 0; //clear current value
+
+    //Program control
+    /*Disable counter*/
+    *CSR_reg &= ~(SysTick_CTRL_ENABLE) ;
+
+    /*Disable interrupt*/
+    __set_PRIMASK(1);
+
+    /*Enable Interrupt request*/
+    *CSR_reg |= SysTick_CTRL_TICKINT ;
+
+    /*Choose Internal clock source*/
+    /*Note that external clock source = AHB/8*/
+    /*Internal clock source = AHB*/
+
+    *CSR_reg |= SysTick_CTRL_CLKSOURCE ;
+
+    /*Enable interrupt and counter*/
+    __set_PRIMASK(0);
+    *CSR_reg |= SysTick_CTRL_ENABLE ;
+}
 
 /*
 	@brief: Function Configurtion the clock tree, including: SYSCLOCK freq, AHB freq, APBx freq, clock input is PLL
@@ -102,4 +142,6 @@ void Clock_tree_init(uint8_t clock_tree_profile){
 	*temp_clock_tree_config.clock_config_reg |= (uint32_t)temp_clock_tree_config.AHB_prescaler << 4; //bit 4-7 are AHB_prescaler
 	*temp_clock_tree_config.clock_config_reg |= (uint32_t)temp_clock_tree_config.APB1_prescaler << 8; //bit 8-10 are APB1_prescaler
 	*temp_clock_tree_config.clock_config_reg |= (uint32_t)temp_clock_tree_config.APB2_prescaler << 11; //bit 11-13 are APB2_prescaler
+	
+	Systick_Initialization(temp_clock_tree_config.Systick_reload_val_u32);
 }
