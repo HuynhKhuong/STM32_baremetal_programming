@@ -23,11 +23,27 @@ const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE] = {
     PORT_C_Enable_bit
   },
   GPIOC,
+  &is_portC_configured,
   PIN_13,
   0, //reg CRH not reg CRL
   OUTPUT_MODE_10MHz, 
   NOT_INPUT,
   OUTPUT_PP
+},
+
+//2. PIN 1A, INPUT PULL_UP, PULL_DOWN
+{
+  {
+    &(RCC->APB2ENR), //RCC reg
+    PORT_A_Enable_bit
+  },
+  GPIOA,
+  &is_portA_configured,
+  PIN_1,
+  1, //reg CRL not CRH
+  INPUT_MODE,
+  PUPD_INPUT,
+  NOT_OUTPUT
 }
 };
 
