@@ -64,6 +64,21 @@ static uint32_t CR_reg_bit_mapping(uint32_t PIN, uint32_t BITS) {
 }
 
 /*
+  @brief: a mini API, wraps up CR_reg_bit_mapping function, to get the CNF/MODE status of a specific pin in CRH/CRL register
+  @input: PIN index (0->31), BITS value (ranges from 0-15, depends on what CNF and MODE values are configured for that pin)
+          reg: CRH or CRL
+  @output: values which are mapped to the pin position in that register
+*/
+uint32_t Get_pin_configure_status(uint32_t PIN, uint32_t BITS, volatile uint32_t* reg){
+
+  uint32_t pin_pos_u32 = CR_reg_bit_mapping(PIN, BITS);
+  uint32_t pin_status_u32 = (*reg) & pin_pos_u32;
+
+  pin_status_u32 >>= ((PIN%8)*BIT_POS_SHIFT);
+
+  return pin_status_u32;
+}
+/*
   @brief: Init function to Initiate GPIO peripherals 
   @input: Configuring struct (pre-defined global struct)
   @output: void, the GPIO is configured

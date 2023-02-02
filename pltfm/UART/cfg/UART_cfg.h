@@ -30,4 +30,86 @@ Define structures to add configurations to UART peripherals
   - Communication side: TX or RX
   - Configurable Stop bits
 */
+
+#define NUMB_OF_UART_CONFIGURE      (uint8_t)1
+#define TOTAL_PIN_PER_UART             (uint8_t)2      
+
+//member enum indicating TX or RX side
+typedef enum{
+  TX = (uint8_t)0, 
+  RX = (uint8_t)1
+}communication_side;
+
+//member enum indicating word length (the length of a character would be transmitted/received) 
+typedef enum{
+  EIGHT_BITS_FRAME = (uint8_t)0,
+  NINE_BITS_FRAME = (uint8_t)1
+}word_length;
+
+//member enum indicating number of stop bit (after the number of stop bits, MCU would transmit/receive new character)
+typedef enum{
+  ONE_STOP_BIT = (uint8_t)0,
+  HALF_STOP_BIT = (uint8_t)1,
+  TWO_STOP_BIT = (uint8_t)2, 
+  ONE_HALF_STOP_BIT = (uint8_t)3
+}num_stop_bit;               
+
+//member struct configuring DMA (this would be the future feature)
+
+//member enums configuring RCC (clock enable)
+typedef enum{
+  RCC_UART1_EN = (uint32_t)RCC_APB2ENR_USART1EN,
+  RCC_UART2_EN = (uint32_t)RCC_APB1ENR_USART2EN,
+  RCC_UART3_EN = (uint32_t)RCC_APB1ENR_USART3EN//Currently we use maximum 3 UART nodes only
+}RCC_enable_UART;
+
+//member struct configuring clock sync
+typedef struct{
+  RCC_enable_UART UART_node_EN;
+  volatile uint32_t* Clock_config_reg; //register configuring RCC
+}Clock_config;
+
+
+//member struct configuring Baudrate
+typedef struct{
+  uint32_t Baud_rate_val_u32;
+  volatile uint16_t* Baudrate_register; //Baudrate register
+}Baudrate_configure;
+
+/*
+  GPIO configuration design
+  - How to not interfere with GPIO module? 
+  - GPIO module has already registered pins for UART (in )
+  - UART just has the index of the pin configuration struct array 
+  - UART just checks if the GPIO module has configured the pin or not: GPIO provides other components method to check 
+  GPIO configuration
+  - If not then stop don't configure any UART module 
+*/
+
+
+//Member struct requesting Interrupt
+typedef struct{
+  // 2 requests containing 2 enable bits
+  uint32_t request1_u32;
+  uint32_t request2_u32;
+}EX_request;
+
+//main struct containing all UART configuration
+typedef struct{
+  //Base configuration
+  USART_TypeDef* UART_node;      //UART NODE
+  Clock_config UART_RCC_config; //RCC section
+  uint8_t pin[TOTAL_PIN_PER_UART]; //GPIO config
+
+  //Communication config
+  communication_side Comm_DIR;
+  word_length FRAME_LENGTH;
+  num_stop_bit  FINISHER_BIT;
+  Baudrate_configure Baudrate;
+  EX_request Interrupt_enquire;
+}UART_cfg;
+
+/*-------------------------------------------------------------------------*/
+extern const UART_cfg UART_conf_cst[NUMB_OF_UART_CONFIGURE];
+
 #endif 

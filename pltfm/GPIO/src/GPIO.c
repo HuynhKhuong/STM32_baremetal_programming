@@ -62,3 +62,46 @@ uint32_t GPIO_ReadPin(uint32_t pin_index){
 
   return DR_reg_value_u32; 
 }
+
+/*
+  @brief: Check register value and compare with the index, anounce user whether the pin is configured correctly
+  @input: pin_index: the index of pin in the GPIO main configuration struct
+  @output: correctly(1), incorrectly(0)
+*/
+
+uint32_t is_pin_configured(uint32_t pin_index){
+  
+  uint32_t result = 1; //default value is true
+
+  //Extract information from struct
+  const GPIO_conf pin_conf_cst = GPIO_conf_cst[pin_index];
+  const GPIO_MODE pin_MODE = pin_conf_cst.Pin_Mode;
+  const uint8_t pin_CNF = (pin_MODE == INPUT_MODE)?pin_conf_cst.Pin_Input_cnf:pin_conf_cst.Pin_Output_cnf; 
+  volatile uint32_t* conf_reg = (pin_conf_cst.is_Reg_CRL)?&(pin_conf_cst.GPIO_Port->CRL):&(pin_conf_cst.GPIO_Port->CRH);
+
+  //Extract information from hardware register
+  const uint32_t pin_configured_status = Get_pin_configure_status(pin_conf_cst.PIN_Index, 0x0f, conf_reg);
+  const uint32_t MODE_value_u32 = pin_configured_status & 0x03; // 0x0011b
+  const uint32_t CNF_value_u32 = pin_configured_status >> 2; //0x1100b
+
+  //Check port configuration: RCC
+  if(pin_conf_cst.is_port_configured == 0){
+    result = 0;
+    return result; 
+  }
+
+  //Check pin configuration: MODE
+  if(pin_MODE != MODE_value_u32){
+    result = 0;
+    return result;
+  }
+
+  //Check pin configuration: CNF
+  if(pin_CNF != CNF_value_u32){
+    result = 0;
+    return result;
+  }
+
+  //All conditions passed
+  return result;
+}
