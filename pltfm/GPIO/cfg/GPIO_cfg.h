@@ -116,4 +116,7 @@ typedef struct{
 /*-------------------------------------------------------------------------*/
 extern const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE];
 
+/*-------------------------------------------------------------------------*/
+uint32_t Get_pin_configure_status(uint32_t PIN, uint32_t BITS, volatile uint32_t* reg);
+
 #endif 
