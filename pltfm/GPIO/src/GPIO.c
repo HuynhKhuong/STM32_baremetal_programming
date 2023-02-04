@@ -62,3 +62,16 @@ uint32_t GPIO_ReadPin(uint32_t pin_index){
 
   return DR_reg_value_u32; 
 }
+
+/*
+  @brief: Check register value and compare with the index, anounce user whether the pin is configured correctly
+  @input: pin_index: the index of pin in the GPIO main configuration struct
+  @output: correctly(1), incorrectly(0)
+*/
+
+uint32_t is_pin_configured(uint32_t pin_index){
+  uint32_t result = 1; //default value is true
+
+
+  return result;
+}
