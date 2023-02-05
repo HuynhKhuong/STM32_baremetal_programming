@@ -12,6 +12,13 @@
 
 #define TXEIE_EN            USART_CR1_TXEIE 
 #define TCIE_EN             USART_CR1_TCIE
+#define USART1_REGISTER  USART1_IRQ
+#define USART2_REGISTER  USART2_IRQ
+#define USART3_REGISTER  USART3_IRQ
+
+uint32_t is_UART1_NVIC_registered = 0;
+uint32_t is_UART2_NVIC_registered = 0;
+uint32_t is_UART3_NVIC_registered = 0;
 
 //Main struct containing all UARTS configuration
 const UART_cfg UART_conf_cst[NUMB_OF_UART_CONFIGURE] = {
@@ -41,7 +48,9 @@ const UART_cfg UART_conf_cst[NUMB_OF_UART_CONFIGURE] = {
                     //+ TDR is empty 
                     //+ next data can be written 
       TCIE_EN       //+ Data is transmitted completely out of Shift register and TXE = 1: Transmission complete
-    }               //Interrupt request
+    },               //Interrupt request
+    &is_UART1_NVIC_registered,
+    USART1_IRQ
   }
 };
 

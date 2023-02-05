@@ -4,6 +4,7 @@
 #include "UART_cfg.h"
 
 //APIs for Init task
+void UART_Init(void);
 
 /*APIs for Normal task:
   - Transmit

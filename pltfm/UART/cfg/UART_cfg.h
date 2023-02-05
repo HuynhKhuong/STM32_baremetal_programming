@@ -25,11 +25,10 @@ Define structures to add configurations to UART peripherals
   - TE bit should not be reset during the transmission of data. 
 */
 
-/*
-  Thing we should init for UART
-  - Communication side: TX or RX
-  - Configurable Stop bits
-*/
+//Flags indicating whether the UART Interrupt is registered or not 
+extern uint32_t is_UART1_NVIC_registered;
+extern uint32_t is_UART2_NVIC_registered;
+extern uint32_t is_UART3_NVIC_registered;
 
 #define NUMB_OF_UART_CONFIGURE      (uint8_t)1
 #define TOTAL_PIN_PER_UART             (uint8_t)2      
@@ -107,6 +106,10 @@ typedef struct{
   num_stop_bit  FINISHER_BIT;
   Baudrate_configure Baudrate;
   EX_request Interrupt_enquire;
+
+  //NVIC register
+  uint32_t* is_NODE_registered;
+  uint32_t NVIC_index;
 }UART_cfg;
 
 /*-------------------------------------------------------------------------*/
