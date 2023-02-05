@@ -1,6 +1,10 @@
 #include "UART.h"
 
 
+uint32_t is_UART1_NVIC_registered = 0;
+uint32_t is_UART2_NVIC_registered = 0;
+uint32_t is_UART3_NVIC_registered = 0;
+
 //Main struct containing all UARTS configuration
 const UART_cfg UART_conf_cst[NUMB_OF_UART_CONFIGURE] = {
   {
@@ -26,7 +30,9 @@ const UART_cfg UART_conf_cst[NUMB_OF_UART_CONFIGURE] = {
     {
       USART_CR1_TXEIE,
       USART_CR1_TCIE
-    }              //Interrupt request
+    },              //Interrupt request
+    &is_UART1_NVIC_registered,
+    USART1_IRQ
   }
 };
 
