@@ -1,5 +1,17 @@
 #include "UART.h"
+#include "GPIO.h"
 
+#define NO_PIN_CONFIGURED   (uint32_t)33
+#define UE_BIT_MASK         USART_CR1_UE
+
+#define M_BIT_POS           (uint32_t)12
+#define M_BIT_MASK          USART_CR1_M
+
+#define STOP_BITS_MASK      USART_CR2_STOP     
+#define STOP_BITS_POS       (uint32_t)12
+
+#define TXEIE_EN            USART_CR1_TXEIE 
+#define TCIE_EN             USART_CR1_TCIE
 
 //Main struct containing all UARTS configuration
 const UART_cfg UART_conf_cst[NUMB_OF_UART_CONFIGURE] = {
@@ -7,12 +19,12 @@ const UART_cfg UART_conf_cst[NUMB_OF_UART_CONFIGURE] = {
     //Base configuration
     USART1, //UART NODE
     {
-      RCC_UART1_EN,
+      RCC_UART1_EN,   //RCC enable bit mapped on reg_u32
       &RCC->APB2ENR
     },   //RCC section
     {
       2,
-      3
+      NO_PIN_CONFIGURED
     },   //GPIO pin index in the GPIO_conf_struct
 
     //Communication config
@@ -24,20 +36,17 @@ const UART_cfg UART_conf_cst[NUMB_OF_UART_CONFIGURE] = {
       &USART1->BRR
     },             //baudrate configure
     {
-      USART_CR1_TXEIE,
-      USART_CR1_TCIE
-    }              //Interrupt request
+      TXEIE_EN,     //
+                    //+ data is moved from TDR -> Shift register (data transmission has been started)
+                    //+ TDR is empty 
+                    //+ next data can be written 
+      TCIE_EN       //+ Data is transmitted completely out of Shift register and TXE = 1: Transmission complete
+    }               //Interrupt request
   }
 };
 
 /*
   Procedure of Transmitting a character
-  1. Enable UART: UE bit
-  2. M bit to define the word length
-  3. Program the number of stop bit 
-  4. DMA enable (optional)
-  5. Select the desired baudrate
-  /-------------- Configuring phase --------------------/
   6. Set TE to send an IDLE frame and first transmission 
   7. Write Data to send in the DR register (this clears the TXE bit)
   8. After writing the last data into the UART_DR register, wait until TC= 1. This indicates that 
@@ -78,4 +87,70 @@ static uint32_t Baudrate_calc(uint32_t baudrate_val_u32, uint8_t UART_index){
   BRR_u32_register |= (DIV_Fraction_u32 & 0x0F);
 
   return BRR_u32_register;
+}
+
+/*
+  @brief: Init all UART modules registered in the main configured struct
+  @input: Void, the function would take the input from the global const struct to configure UART
+          The members of struct are in a TX/RX level of the UART
+  @output: Void
+*/
+void UART_Init(void){
+  /*
+    /-------------- Configuring procedure --------------------/
+    1. Enable UART: UE bit
+    2. M bit to define the word length
+    3. Program the number of stop bit 
+    4. DMA enable (optional)
+    5. Select the desired baudrate
+  */
+
+  UART_cfg temp_UART_conf_str;
+  volatile uint32_t* AFIO_EN_reg = &(RCC->APB2ENR);
+  
+  uint8_t is_pin_check_passed = 1; //default value is true
+
+  // For all other peripherals that uses I/O
+  *AFIO_EN_reg &= ~0x01; //bit 0 disables the AFIO clock
+  *AFIO_EN_reg |= 0x01; //bit 0 enables the AFIO clock
+
+  //Iterate throughout all indexes of the struct
+  for(uint8_t i = 0; i < NUMB_OF_UART_CONFIGURE; i++){
+    temp_UART_conf_str = UART_conf_cst[i];
+
+    //Check is the GPIO pin configured or not? 
+    for(uint8_t j = 0; j < TOTAL_PIN_PER_UART; j ++){
+      //Iterate throughout UART mapped pins
+      if(temp_UART_conf_str.pin[j] == NO_PIN_CONFIGURED) continue;
+      if(!is_pin_configured(temp_UART_conf_str.pin[j])) {
+        is_pin_check_passed = 0;
+        break;
+      }
+    }
+
+    if(!is_pin_check_passed) continue; //Skip, don't continue configuring the current UART module
+
+    //Configure for RCC
+    *(temp_UART_conf_str.UART_RCC_config.Clock_config_reg) &= ~temp_UART_conf_str.UART_RCC_config.UART_node_EN; //clear current status
+    *(temp_UART_conf_str.UART_RCC_config.Clock_config_reg) |= temp_UART_conf_str.UART_RCC_config.UART_node_EN; //config new status
+
+    //Enable UART
+    temp_UART_conf_str.UART_node->CR1 |= UE_BIT_MASK;          
+
+    //M bit
+    temp_UART_conf_str.UART_node->CR1 &= ~M_BIT_MASK;  //clear current status
+    temp_UART_conf_str.UART_node->CR1 |= ((uint32_t)temp_UART_conf_str.FRAME_LENGTH << M_BIT_POS); //config new status
+
+    //numb of stop bit
+    temp_UART_conf_str.UART_node->CR2 &= ~STOP_BITS_MASK;  //clear current status
+    temp_UART_conf_str.UART_node->CR2 |= ((uint32_t)temp_UART_conf_str.FINISHER_BIT << STOP_BITS_POS); //config new status
+
+    //Select baudrate
+    *temp_UART_conf_str.Baudrate.Baudrate_register = Baudrate_calc(temp_UART_conf_str.Baudrate.Baud_rate_val_u32, i);
+
+  }
+  
+  //Interrupt request register for UART
+
+
 }
