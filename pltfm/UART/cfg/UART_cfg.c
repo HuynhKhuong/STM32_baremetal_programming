@@ -1,5 +1,8 @@
 #include "UART.h"
 
+#define USART1_REGISTER  USART1_IRQ
+#define USART2_REGISTER  USART2_IRQ
+#define USART3_REGISTER  USART3_IRQ
 
 uint32_t is_UART1_NVIC_registered = 0;
 uint32_t is_UART2_NVIC_registered = 0;
