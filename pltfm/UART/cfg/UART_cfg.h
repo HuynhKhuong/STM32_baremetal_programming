@@ -109,7 +109,7 @@ typedef struct{
 
   //NVIC register
   uint32_t* is_NODE_registered;
-  uint32_t NVIC_index;
+  IRQn_Type NVIC_index;
 }UART_cfg;
 
 /*-------------------------------------------------------------------------*/

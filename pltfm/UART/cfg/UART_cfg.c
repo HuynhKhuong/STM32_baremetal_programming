@@ -12,9 +12,9 @@
 
 #define TXEIE_EN            USART_CR1_TXEIE 
 #define TCIE_EN             USART_CR1_TCIE
-#define USART1_REGISTER  USART1_IRQ
-#define USART2_REGISTER  USART2_IRQ
-#define USART3_REGISTER  USART3_IRQ
+#define USART1_REGISTER     USART1_IRQ
+#define USART2_REGISTER     USART2_IRQ
+#define USART3_REGISTER     USART3_IRQ
 
 uint32_t is_UART1_NVIC_registered = 0;
 uint32_t is_UART2_NVIC_registered = 0;
@@ -157,9 +157,12 @@ void UART_Init(void){
     //Select baudrate
     *temp_UART_conf_str.Baudrate.Baudrate_register = Baudrate_calc(temp_UART_conf_str.Baudrate.Baud_rate_val_u32, i);
 
-  }
-  
-  //Interrupt request register for UART
-
-
+    //Interrupt request register for UART
+    if(*(temp_UART_conf_str.is_NODE_registered == 0){ //UART module is not configured
+      __set_PRIMASK(1);
+      NVIC_EnableIRQ(temp_UART_conf_str.NVIC_index);
+      __set_PRIMASK(0);
+      *(temp_UART_conf_str.is_NODE_registered) = 1;
+    }
+  } 
 }
