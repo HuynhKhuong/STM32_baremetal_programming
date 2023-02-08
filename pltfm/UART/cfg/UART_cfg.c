@@ -158,7 +158,11 @@ void UART_Init(void){
     *temp_UART_conf_str.Baudrate.Baudrate_register = Baudrate_calc(temp_UART_conf_str.Baudrate.Baud_rate_val_u32, i);
 
     //Interrupt request register for UART
+<<<<<<< HEAD
     if(*(temp_UART_conf_str.is_NODE_registered == 0){ //UART module is not configured
+=======
+    if(*(temp_UART_conf_str.is_NODE_registered)){
+>>>>>>> 76448769128a3a2ee415f01eec35cb4a51009fd2
       __set_PRIMASK(1);
       NVIC_EnableIRQ(temp_UART_conf_str.NVIC_index);
       __set_PRIMASK(0);
