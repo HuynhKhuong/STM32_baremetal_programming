@@ -1,5 +1,7 @@
 #include "UART.h"
 
+#define TE_BIT_POS    (uint32_t)3
+#define TE_BIT_MASK   USART_CR1_TE          
 /*
   @brief: Causes a UART Port to transmit a string of bytes, using interrupt mechanism
   @input: Index of UART Node in main configuration struct, pointer to string of bytes
@@ -28,7 +30,7 @@
   2. A write to UART_DR register 
 */
 
-void UART_Transmitt_Interrupt(uint32_t UART_Port_u32){
+void UART_Transmitt_Interrupt(uint32_t UART_TX_Port_u32, uint8_t* byte_string_p, uint32_t string_length_u32){
 /*
   Procedure of Transmitting a character
   1. Set TE to send an IDLE frame and first transmission 
@@ -37,7 +39,23 @@ void UART_Transmitt_Interrupt(uint32_t UART_Port_u32){
   the transmission of the last frame is complete
   4. Repeat the this for each data in case of single buffer 
 */
-  
+  const UART_cfg UART_TX_Node = UART_conf_cst[UART_TX_Port_u32];
+  uint32_t is_transmission_occuring = 0; //default value is 0 
+
+  //First check whether the current index is TX or not
+  if(UART_TX_Node.Comm_DIR == RX) return;  
+
+  //Second check whether there are transmission occuring
+  is_transmission_occuring = ((UART_TX_Node.UART_node->CR1) & TE_BIT_MASK) >> TE_BIT_POS;
+  if(is_transmission_occuring) return;
+
+  //Enable all necessary Interrupt requests
+  (UART_TX_Node.UART_node->CR1) |= UART_TX_Node.Interrupt_enquire.request1_u32; //Complete a single byte transmission only
+
+  //Set TE bit, this would send IDLE frame (first transmission, which caused TXIE interrupt request)
+  UART_TX_Node.UART_node->CR1 |= TE_BIT_MASK;
+
+  //Further jobs would be done in Exception handlers
 
 }
 

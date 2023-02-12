@@ -89,6 +89,7 @@ typedef struct{
 //Member struct requesting Interrupt
 typedef struct{
   // 2 requests containing 2 enable bits
+  // No config = 0
   uint32_t request1_u32;
   uint32_t request2_u32;
 }EX_request;
