@@ -55,15 +55,8 @@ const UART_cfg UART_conf_cst[NUMB_OF_UART_CONFIGURE] = {
 };
 
 /*
-  Procedure of Transmitting a character
-  6. Set TE to send an IDLE frame and first transmission 
-  7. Write Data to send in the DR register (this clears the TXE bit)
-  8. After writing the last data into the UART_DR register, wait until TC= 1. This indicates that 
-  the transmission of the last frame is complete
-  9. Repeat the this for each data in case of single buffer 
-*/
 
-/*
+
   @brief: Compute the Mantissa part and Fraction part to write in to the BR configuration register 
   @input: desired baudrate_value
   @output: uint32_t register containing DIV_Mantissa part & DIV_Fraction part

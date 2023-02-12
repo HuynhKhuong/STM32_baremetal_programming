@@ -1,6 +1,12 @@
 #include "UART.h"
 
 /*
+  @brief: Causes a UART Port to transmit a string of bytes, using interrupt mechanism
+  @input: Index of UART Node in main configuration struct, pointer to string of bytes
+  @output: UART would transmit string of bytes 
+
+  @appendix: Mechanism of transmitting of UART
+
   Setting TE bit on causes the MCU to send the IDLE frame very first
   When transmitting multiple characters: 
   - TXE is always cleared by a write to the data register
@@ -21,3 +27,21 @@
   1. A read from the UART_SR register
   2. A write to UART_DR register 
 */
+
+void UART_Transmitt_Interrupt(uint32_t UART_Port_u32){
+/*
+  Procedure of Transmitting a character
+  1. Set TE to send an IDLE frame and first transmission 
+  2. Write Data to send in the DR register (this clears the TXE bit)
+  3. After writing the last data into the UART_DR register, wait until TC= 1. This indicates that 
+  the transmission of the last frame is complete
+  4. Repeat the this for each data in case of single buffer 
+*/
+  
+
+}
+
+void UART_Receive_Interrupt(uint32_t UART_Port_u32){
+  //Backbones only, do nothing
+  return;
+}

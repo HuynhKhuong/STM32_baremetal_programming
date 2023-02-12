@@ -11,6 +11,7 @@ void UART_Init(void);
   - Receive
   These tasks would corporate the Exception logic to to the process
 */
-
+void UART_Transmitt_Interrupt(uint32_t UART_Port_u32);
+void UART_Receive_Interrupt(uint32_t UART_Port_u32);
 
 #endif 
