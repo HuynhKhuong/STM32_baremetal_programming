@@ -1,6 +1,7 @@
 #include "UART.h"
 #include "GPIO.h"
 
+
 #define NO_PIN_CONFIGURED   (uint32_t)33
 #define UE_BIT_MASK         USART_CR1_UE
 
@@ -10,9 +11,6 @@
 #define STOP_BITS_MASK      USART_CR2_STOP     
 #define STOP_BITS_POS       (uint32_t)12
 
-#define TXEIE_EN            USART_CR1_TXEIE 
-#define TCIE_EN             USART_CR1_TCIE
-#define NO_INTERRUPT_REQUEST  (uint32_t)0 
 
 #define USART1_REGISTER     USART1_IRQ
 #define USART2_REGISTER     USART2_IRQ
@@ -43,14 +41,7 @@ const UART_cfg UART_conf_cst[NUMB_OF_UART_CONFIGURE] = {
     {
       115200,
       &USART1->BRR
-    },             //baudrate configure
-    {
-      TXEIE_EN,     //
-                    //+ data is moved from TDR -> Shift register (data transmission has been started)
-                    //+ TDR is empty 
-                    //+ next data can be written 
-      TCIE_EN       //+ Data is transmitted completely out of Shift register and TXE = 1: Transmission complete
-    },               //Interrupt request
+    },
     &is_UART1_NVIC_registered,
     USART1_IRQ
   }

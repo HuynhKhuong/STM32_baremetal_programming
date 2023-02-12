@@ -30,8 +30,13 @@ extern uint32_t is_UART1_NVIC_registered;
 extern uint32_t is_UART2_NVIC_registered;
 extern uint32_t is_UART3_NVIC_registered;
 
+
 #define NUMB_OF_UART_CONFIGURE      (uint8_t)1
 #define TOTAL_PIN_PER_UART             (uint8_t)2      
+
+//Specify index of each UART Node
+#define UART_1_TX_idx   (uint8_t)0
+#define UART_1_RX_idx   (uint8_t)1
 
 //member enum indicating TX or RX side
 typedef enum{
@@ -94,6 +99,7 @@ typedef struct{
   uint32_t request2_u32;
 }EX_request;
 
+
 //main struct containing all UART configuration
 typedef struct{
   //Base configuration
@@ -106,11 +112,11 @@ typedef struct{
   word_length FRAME_LENGTH;
   num_stop_bit  FINISHER_BIT;
   Baudrate_configure Baudrate;
-  EX_request Interrupt_enquire;
 
   //NVIC register
   uint32_t* is_NODE_registered;
   IRQn_Type NVIC_index;
+
 }UART_cfg;
 
 /*-------------------------------------------------------------------------*/
