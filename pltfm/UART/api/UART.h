@@ -15,4 +15,12 @@ void UART_Transmitt_Interrupt(uint32_t UART_TX_Port_u32, uint8_t* byte_string_p,
 
 void UART_Receive_Interrupt(uint32_t UART_Port_u32);
 
+//Member struct containing user's string
+typedef struct{
+  uint8_t  container_pointer[100];
+  uint32_t container_length;
+}container_info;
+
+extern container_info user_string[NUMB_OF_UART_CONFIGURE];
+
 #endif 

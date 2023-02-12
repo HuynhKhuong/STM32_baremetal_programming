@@ -2,6 +2,9 @@
 
 #define TE_BIT_POS    (uint32_t)3
 #define TE_BIT_MASK   USART_CR1_TE          
+
+//Internal container declaration
+container_info user_string[NUMB_OF_UART_CONFIGURE];
 /*
   @brief: Causes a UART Port to transmit a string of bytes, using interrupt mechanism
   @input: Index of UART Node in main configuration struct, pointer to string of bytes
@@ -52,11 +55,19 @@ void UART_Transmitt_Interrupt(uint32_t UART_TX_Port_u32, uint8_t* byte_string_p,
   //Enable all necessary Interrupt requests
   (UART_TX_Node.UART_node->CR1) |= UART_TX_Node.Interrupt_enquire.request1_u32; //Complete a single byte transmission only
 
+  //Store string information for further processing
+
   //Set TE bit, this would send IDLE frame (first transmission, which caused TXIE interrupt request)
   UART_TX_Node.UART_node->CR1 |= TE_BIT_MASK;
 
+  //Get user's string info
   //Further jobs would be done in Exception handlers
+  
+  user_string[UART_TX_Port_u32].container_length = string_length_u32;
 
+  for(int i = 0; i < string_length_u32; i++){
+    user_string[UART_TX_Port_u32].container_pointer[i] = byte_string_p[i];
+  }
 }
 
 void UART_Receive_Interrupt(uint32_t UART_Port_u32){
