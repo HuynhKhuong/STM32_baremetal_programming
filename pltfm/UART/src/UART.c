@@ -73,7 +73,32 @@ void UART_Transmitt_Interrupt(uint32_t UART_TX_Port_u32, uint8_t* byte_string_p,
 
 }
 
-void UART_Receive_Interrupt(uint32_t UART_Port_u32){
+/*
+  @brief: Causes UART to receive characters from outside
+  @appendix: Mechanism of Receiving a character
+    During a USART reception, data shifts in LSB first through RX pin. 
+    USART_DR consists a buffer RDR between internal bus and the received shift register
+
+    When a character is received:
+    1. The RXNE bit is set. It indicates that the content of the shift register is transferred to the
+    RDR. In other words, data has been received and can be read (as well as its
+    associated error flags).
+    2. An interrupt is generated if the RXNEIE bit is set.
+    3. The error flags can be set if a frame error, noise or an overrun error has been detected
+    during reception.
+    4. In multibuffer, RXNE is set after every byte received and is cleared by the DMA read to
+    the Data register.
+    5. In single buffer mode, clearing the RXNE bit is performed by a software read to the USART_DR register. 
+    The RXNE flag can also be cleared by writing a zero to it. The RXNE bit must be cleared before the end of 
+    the reception of the next character to avoid an overrun error.
+
+    Note: The RE bit should not be reset while receiving data. If the RE bit is disabled during reception, the 
+    reception of the current byte will be aborted
+  
+  @input:
+*/
+
+void UART_Receive_Interrupt(uint32_t UART_TX_Port_u32, uint8_t* byte_string_p){
   //Backbones only, do nothing
   return;
 }
