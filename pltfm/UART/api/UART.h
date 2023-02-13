@@ -40,6 +40,6 @@ typedef struct{
   uint32_t is_last_byte;
 }container_info;
 
-extern container_info user_string[NUMB_OF_UART_CONFIGURE];
+extern container_info user_string[NUMB_OF_UART_CONFIGURE*2]; //*2 as we need to seperate Rx and Tx buffer
 
 #endif 

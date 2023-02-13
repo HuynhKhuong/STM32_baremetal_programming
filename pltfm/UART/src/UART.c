@@ -1,8 +1,14 @@
 #include "UART.h"
 
 #define NO_INTERRUPT_REQUEST  (uint32_t)0 
+
 //Internal container declaration
-container_info user_string[NUMB_OF_UART_CONFIGURE];
+container_info user_string[NUMB_OF_UART_CONFIGURE*2]; //*2 as we need to seperate RX and TX buffer
+/*
+  TX buffers take index as 0, 1, 2
+  Rx buffers take index as 3, 4, 5
+  These indexes depend on number of UART configured
+*/
 
 /*
   @brief: Causes a UART Port to transmit a string of bytes, using interrupt mechanism
@@ -44,10 +50,7 @@ void UART_Transmitt_Interrupt(uint32_t UART_TX_Port_u32, uint8_t* byte_string_p,
   const UART_cfg UART_TX_Node = UART_conf_cst[UART_TX_Port_u32];
   uint32_t is_transmission_occuring = 0; //default value is 0 
 
-  //First check whether the current index is TX or not
-  if(UART_TX_Node.Comm_DIR == RX) return;  
-
-  //Second check whether there are transmission occuring
+  //check whether there are transmission occuring
   is_transmission_occuring = ((UART_TX_Node.UART_node->CR1) & TE_BIT_MASK) >> TE_BIT_POS;
   if(is_transmission_occuring) return;
 
