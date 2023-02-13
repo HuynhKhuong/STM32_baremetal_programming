@@ -1,4 +1,5 @@
 #include "UART.h"
+#include <stdio.h>
 
 #define NO_INTERRUPT_REQUEST  (uint32_t)0 
 
@@ -68,7 +69,8 @@ void UART_Transmitt_Interrupt(uint32_t UART_TX_Port_u32, uint8_t* byte_string_p,
 
   user_string[UART_TX_Port_u32].container_current_byte = 0;
   user_string[UART_TX_Port_u32].is_last_byte = 0;
-  
+  user_string[UART_TX_Port_u32].user_provided_string = NULL;
+
   //Set TE bit, this would send IDLE frame (first transmission, which caused TXIE interrupt request)
   UART_TX_Node.UART_node->CR1 |= TE_BIT_MASK;
 
@@ -112,21 +114,27 @@ void UART_Receive_Interrupt(uint32_t UART_RX_Port_u32, uint8_t* byte_string_p){
   */
 
   const UART_cfg UART_RX_Node = UART_conf_cst[UART_RX_Port_u32];
-  uint32_t is_reception_occuring = 0; //default value is 0 
-
-  //First check whether the current index is RX or not
-  if(UART_RX_Node.Comm_DIR == TX) return;  
+  uint8_t is_reception_occuring = 0;
 
   //Second check whether there are transmission occuring
   is_reception_occuring = ((UART_RX_Node.UART_node->CR1) & RE_BIT_MASK) >> RE_BIT_POS;
   if(is_reception_occuring) return;
 
   //Setup interrupt request for RXE & IDLE 
-  (UART_TX_Node.UART_node->CR1) |= RXNEIE_EN;
+  (UART_RX_Node.UART_node->CR1) |= RXNEIE_EN;
   (UART_RX_Node.UART_node->CR1) |= IDLEIE_EN;
 
-  //How to map the internal variables back to users?
-  
+  //Setup internal variable
+  for(int i = 0; i < 100; i++){
+    user_string[UART_RX_Port_u32 + NUMB_OF_UART_CONFIGURE].container_pointer[i] = 0;
+  }
+
+  user_string[UART_RX_Port_u32 + NUMB_OF_UART_CONFIGURE].container_length = 0;
+  user_string[UART_RX_Port_u32 + NUMB_OF_UART_CONFIGURE].container_current_byte= 0;
+  user_string[UART_RX_Port_u32 + NUMB_OF_UART_CONFIGURE].user_provided_string= byte_string_p;
+
+  //Set RE bit, this would send IDLE frame (first transmission, which caused TXIE interrupt request)
+  UART_RX_Node.UART_node->CR1 |= RE_BIT_MASK;
   return;
 }
 

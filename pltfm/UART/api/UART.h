@@ -38,6 +38,7 @@ typedef struct{
   uint32_t container_length;
   uint32_t container_current_byte;
   uint32_t is_last_byte;
+  uint8_t* user_provided_string; //This pointer is for RX only
 }container_info;
 
 extern container_info user_string[NUMB_OF_UART_CONFIGURE*2]; //*2 as we need to seperate Rx and Tx buffer
