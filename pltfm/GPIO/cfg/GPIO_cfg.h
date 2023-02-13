@@ -13,7 +13,7 @@ Define structures to add configurations to GPIO peripherals
 //1. RCC configuration
 //2. Pin configuration (GPIO registers)
 
-#define NUM_OF_PINS_CONFIGURE         (uint32_t)2
+#define NUM_OF_PINS_CONFIGURE         (uint32_t)4
 //Because the configuration is for pin level, Some configurations for port level are common and no need to 
 //repeat the some steps. Flags are used to indicate whether the configuration is done before or not 
 extern uint8_t is_portA_configured;

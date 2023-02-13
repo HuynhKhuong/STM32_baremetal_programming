@@ -44,6 +44,36 @@ const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE] = {
   INPUT_MODE,
   PUPD_INPUT,
   NOT_OUTPUT
+},
+
+//3. PIN 9A, UART TX PIN, ALT_OUTPUT
+{
+  {
+    &(RCC->APB2ENR), //RCC reg
+    PORT_A_Enable_bit
+  },
+  GPIOA,
+  &is_portA_configured,
+  PIN_9,
+  0, //reg CRH not CRL
+  OUTPUT_MODE_50MHz,
+  NOT_INPUT,
+  AL_OUTPUT_PP,
+},
+
+//4. PIN 10A, UART RX PIN, FLOATING INPUT
+{
+  {
+    &(RCC->APB2ENR), //RCC reg
+    PORT_A_Enable_bit
+  },
+  GPIOA,
+  &is_portA_configured,
+  PIN_10,
+  0, //reg CRH not CRL
+  INPUT_MODE,
+	FLOATING_INPUT,
+	NOT_OUTPUT,
 }
 };
 
