@@ -5,6 +5,6 @@
 
 //APIs for Exception task
 void UART_Transmit_Exception_call(uint32_t UART_Port_index);
-void UART_Receive_Exception_call(void);
+void UART_Receive_Exception_call(uint32_t UART_Port_index);
 
 #endif

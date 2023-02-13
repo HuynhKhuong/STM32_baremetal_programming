@@ -30,7 +30,7 @@ void UART_Receive_Interrupt(uint32_t UART_TX_Port_u32, uint8_t* byte_string_p);
   APIs for user to handle when transmission is done (after a number exception calls)
 */
 void UART_Transmitt_cplt(uint32_t UART_Port_u32);
-void UART_Receive_cplt(void);
+void UART_Receive_cplt(uint32_t UART_Port_u32);
 
 //Member struct containing user's string
 typedef struct{

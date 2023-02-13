@@ -153,7 +153,29 @@ void UART_Transmitt_cplt(uint32_t UART_Port_u32){
   return;
 }
 
-void UART_Receive_cplt(void){
+void UART_Receive_cplt(uint32_t UART_Port_u32){
+
+  const UART_cfg UART_RX_Node = UART_conf_cst[UART_Port_u32];
+  const container_info current_user_string = user_string[UART_Port_u32 + NUMB_OF_UART_CONFIGURE];
+
+  uint8_t dummy_read_u8 = 0;
+
+  //Disable RE bit
+  UART_RX_Node.UART_node->CR1 &= ~RE_BIT_MASK;
+
+  //Disable Interrupt enable
+	UART_RX_Node.UART_node->CR1 &= ~RXNEIE_EN;
+	UART_RX_Node.UART_node->CR1 &= ~IDLEIE_EN;
+
+	//clear IDLE flag 
+  dummy_read_u8 = UART_RX_Node.UART_node->DR;
+
+  //return value to user
+  for(int i = 0; i < current_user_string.container_length; i++){
+    current_user_string.user_provided_string[i] = current_user_string.container_pointer[i];
+  }
+
   //User define
+  
   return;
 }
