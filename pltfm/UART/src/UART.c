@@ -1,7 +1,5 @@
 #include "UART.h"
 
- 
-
 #define NO_INTERRUPT_REQUEST  (uint32_t)0 
 //Internal container declaration
 container_info user_string[NUMB_OF_UART_CONFIGURE];
@@ -95,16 +93,41 @@ void UART_Transmitt_Interrupt(uint32_t UART_TX_Port_u32, uint8_t* byte_string_p,
     Note: The RE bit should not be reset while receiving data. If the RE bit is disabled during reception, the 
     reception of the current byte will be aborted
   
-  @input:
+  @input: Index of UART Node in main configuration struct, pointer to string of bytes
+  @output: none 
+          Actual work would be done in Exception handling functions
 */
 
-void UART_Receive_Interrupt(uint32_t UART_TX_Port_u32, uint8_t* byte_string_p){
-  //Backbones only, do nothing
+void UART_Receive_Interrupt(uint32_t UART_RX_Port_u32, uint8_t* byte_string_p){
+  /*
+    Procedure of Transmitting a character
+    1. Setup interrupt request for UART node
+    2. Set RE to enable UART to receive. 
+    3. The UART RX would always trigger RXE interrupt whenever a new byte is shifted from shift register to RDR
+    4. Clear RXE interrupt and the receiving sequence would only stop once the IDLE interrupt stop
+    5. The function would take the characters and the length 
+  */
+
+  const UART_cfg UART_RX_Node = UART_conf_cst[UART_RX_Port_u32];
+  uint32_t is_reception_occuring = 0; //default value is 0 
+
+  //First check whether the current index is RX or not
+  if(UART_RX_Node.Comm_DIR == TX) return;  
+
+  //Second check whether there are transmission occuring
+  is_reception_occuring = ((UART_RX_Node.UART_node->CR1) & RE_BIT_MASK) >> RE_BIT_POS;
+  if(is_reception_occuring) return;
+
+  //Setup interrupt request for RXE & IDLE 
+  (UART_TX_Node.UART_node->CR1) |= RXNEIE_EN;
+  (UART_RX_Node.UART_node->CR1) |= IDLEIE_EN;
+
+  //How to map the internal variables back to users?
+  
   return;
 }
 
 void UART_Transmitt_cplt(uint32_t UART_Port_u32){
-  //User define
   const UART_cfg UART_TX_Node = UART_conf_cst[UART_Port_u32];
 	
   //Disable TE bit
@@ -114,6 +137,8 @@ void UART_Transmitt_cplt(uint32_t UART_Port_u32){
 	
 	//clear TC flag 
 	UART_TX_Node.UART_node->DR = 0;
+
+  //User define
   return;
 }
 

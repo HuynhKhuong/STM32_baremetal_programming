@@ -8,6 +8,12 @@
 #define TE_BIT_POS    (uint32_t)3
 #define TE_BIT_MASK   USART_CR1_TE         
 
+#define RE_BIT_POS    (uint32_t)2
+#define RE_BIT_MASK   USART_CR1_RE
+
+#define RXNEIE_EN     USART_CR1_RXNEIE
+#define IDLEIE_EN     USART_CR1_IDLEIE
+
 //APIs for Init task
 void UART_Init(void);
 
