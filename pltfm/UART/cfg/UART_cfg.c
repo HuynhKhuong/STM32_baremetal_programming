@@ -31,11 +31,10 @@ const UART_cfg UART_conf_cst[NUMB_OF_UART_CONFIGURE] = {
     },   //RCC section
     {
       2,
-      NO_PIN_CONFIGURED
+      3
     },   //GPIO pin index in the GPIO_conf_struct
 
     //Communication config
-    TX,   //communcation side
     EIGHT_BITS_FRAME, //word length
     ONE_STOP_BIT,   //numb_of_stop_bits
     {
