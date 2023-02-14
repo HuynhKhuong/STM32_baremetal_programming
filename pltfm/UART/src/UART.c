@@ -62,7 +62,8 @@ void UART_Transmitt_Interrupt(uint32_t UART_TX_Port_u32, uint8_t* byte_string_p,
   //Further jobs would be done in Exception handlers
   
   user_string[UART_TX_Port_u32].container_length = string_length_u32;
-
+	
+	//Suppose that the user_container is always smaller than private variable
   for(int i = 0; i < string_length_u32; i++){
     user_string[UART_TX_Port_u32].container_pointer[i] = byte_string_p[i];
   }
@@ -149,7 +150,14 @@ void UART_Transmitt_cplt(uint32_t UART_Port_u32){
 	//clear TC flag 
 	UART_TX_Node.UART_node->DR = 0;
 
-  //User define
+  #ifdef User_define_TX
+
+    //User define
+    User_GP_UART_Transmit_cplt();
+
+  #endif
+
+
   return;
 }
 
@@ -171,11 +179,16 @@ void UART_Receive_cplt(uint32_t UART_Port_u32){
   dummy_read_u8 = UART_RX_Node.UART_node->DR;
 
   //return value to user
+	//Suppose that the user_container is always bigger than private variable
   for(int i = 0; i < current_user_string.container_length; i++){
     current_user_string.user_provided_string[i] = current_user_string.container_pointer[i];
   }
 
-  //User define
-  
+  #ifdef User_define_RX
+
+    User_GP_UART_Receive_cplt();
+
+  #endif
+
   return;
 }

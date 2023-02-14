@@ -14,6 +14,8 @@
 #define RXNEIE_EN     USART_CR1_RXNEIE
 #define IDLEIE_EN     USART_CR1_IDLEIE
 
+#define User_define_RX	//User defines this if they want to add their own code once the Reception is done
+
 //APIs for Init task
 void UART_Init(void);
 
@@ -27,10 +29,22 @@ void UART_Receive_Interrupt(uint32_t UART_TX_Port_u32, uint8_t* byte_string_p);
 
 
 /*
-  APIs for user to handle when transmission is done (after a number exception calls)
+  APIs for user to handle when communication is done 
 */
+//Handle the final character
 void UART_Transmitt_cplt(uint32_t UART_Port_u32);
 void UART_Receive_cplt(uint32_t UART_Port_u32);
+
+//These functions would be invoked when UART_Tx/Rx_cplt is called
+//These functions are User define completely, would be defined in main
+
+#ifdef User_define_TX
+void User_GP_UART_Transmit_cplt(void);
+#endif 
+
+#ifdef User_define_RX
+void User_GP_UART_Receive_cplt(void);
+#endif
 
 //Member struct containing user's string
 typedef struct{
