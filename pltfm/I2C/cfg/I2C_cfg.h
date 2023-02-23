@@ -10,6 +10,18 @@ As this section would configure STM32 as a basic manner, there is no error handl
 
 Advanced feature would be added in the future
 *************************/
+
+//Shared MACROS for internal and external using
+#define I2C_BUSY_BIT_MASK I2C_SR2_BUSY
+#define I2C_BUSY_BIT_POS  (uint32_t)1
+
+#define I2C_ERR_BIT_MASK  I2C_CR2_ITERREN
+#define I2C_EVE_BIT_MASk  I2C_CR2_ITEVTEN
+#define I2C_BUFFER_BIT_MASK I2C_CR2_ITBUFEN
+
+#define I2C_START_BIT_MASK I2C_CR1_START
+
+
 #define NUM_OF_I2C_NODE     (uint8_t)1
 #define TOTAL_PIN_PER_I2C   (uint8_t)2
 
@@ -58,6 +70,13 @@ typedef enum{
   SM_MODE =  (uint16_t)0,
   FM_MODE =   I2C_CCR_FS, //Operation for FS is not support currently
 }Speed_Mode;
+
+
+//Relating to Data Reception layout
+typedef enum{
+  ACK_OF_CURRENT_BYTE = 0,
+  ACK_OF_NEXT_BYTE = I2C_CR1_POS,
+}ACK_BIT_POS;
 
 //Main struct configuring I2C 
 typedef struct{

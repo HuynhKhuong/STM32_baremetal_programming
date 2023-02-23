@@ -12,7 +12,11 @@
 
 #define I2C_NO_NVIC_REGISTER  (uint32_t)999 //dummy value representing NO NVIC REGISTER
 
+//BIT MASK for I2C CR1 reg
 #define I2C_SOFTRESET_BIT_MASK        I2C_CR1_SWRST
+#define I2C_PERIPHERAL_EN_BIT_MASK    I2C_CR1_PE
+
+//BIT MASK for I2C CR2 reg
 #define I2C_FREQ_BIT_MASK             I2C_CR2_FREQ
 #define I2C_CCR_BIT_MASK              I2C_CCR_CCR
 #define I2C_FS_BIT_MASK               I2C_CCR_FS
@@ -20,6 +24,7 @@
 #define I2C_ADD_MODE_BIT_MASK         I2C_OAR1_ADDMODE
 #define I2C_7BIT_ADD_BIT_MASK         I2C_OAR1_ADD1_7
 #define I2C_10BIT_ADD_BIT_MASK        (I2C_OAR1_ADD1_7|I2C_OAR1_ADD8_9|I2C_OAR1_ADD0)
+
 
 uint8_t is_I2C1_NVIC_registered = 0;
 uint8_t is_I2C2_NVIC_registered = 0;
@@ -224,5 +229,8 @@ void I2C_Init(void){
       }
       *(temp_I2C_conf_str.is_I2C_node_NVIC_registered) = 1;
     }
+
+    //Finally enable I2C
+    (temp_I2C_conf_str.I2C_Node)->CR1 |= I2C_PERIPHERAL_EN_BIT_MASK;    
   }
 }
