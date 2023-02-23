@@ -1,7 +1,7 @@
 #include "I2C.h"
 
 /*
-  @brief: Transmitt as Master using Interrupt mechanism
+  @brief: Transmitt as Master using Interrupt mechanism. This function would keep Master constantly transmit data to slave
   @input: I2C_port_u8: index in main configuartion struct, address_u16: address of slave, either in 10-bit or 8-bit mode, uint8_t* data_string
   @appendix:
     1. START condition phase: 
@@ -43,5 +43,21 @@
 
   @output: I2C port would transmit the data string, further design would handle if slave doesn't receive the data (NACK)
 */
-void I2C_Master_Transmitt_Interrupt(uint8_t I2C_port_u8, uint16_t address_u16, uint8_t* data_string, uint8_t data_length_u8);
+void I2C_Master_Transmitt_Interrupt(uint8_t I2C_port_u8, uint16_t address_u16, uint8_t* data_string, uint8_t data_length_u8){
+  //Note: This function would handle 7-bit address only
+  
+  return;
+}
+
+/// @brief: Read a slave data as a Master using Interrupt mechanism. 
+//          This function would trigger Master transmit address to slave, causing slave to send back data to master
+/// @param I2C_port_u8: index in main configuartion struct,   
+/// @param address_u16: address of slave, either in 10-bit or 8-bit mode,
+/// @param data_string: container of the slave's data 
+
+void I2C_Master_Read_Interrupt(uint8_t I2C_port_u8, uint16_t address_u16, uint8_t* data_string){
+
+  //dummy return, this function would be handled later
+  return;
+}
 
