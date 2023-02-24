@@ -18,4 +18,19 @@ void I2C_Init(void);
 void I2C_Master_Transmitt_Interrupt(uint8_t I2C_port_u8, uint16_t address_u16, uint8_t* data_string, uint8_t data_length_u8);
 void I2C_Master_Read_Interrupt(uint8_t I2C_port_u8, uint16_t address_u16, uint8_t* data_string);
 
+
+//Member struct containing user's string
+typedef struct{
+  uint8_t  container_pointer[100];
+  uint32_t container_length;
+  uint32_t container_current_byte;
+  uint32_t is_last_byte;
+  uint8_t* user_provided_string; //This pointer is for RX only
+
+  uint16_t slave_address; //for slave 
+  uint16_t master_address; //for master
+}container_info;
+
+extern container_info user_string[NUM_OF_I2C_NODE];
+
 #endif
