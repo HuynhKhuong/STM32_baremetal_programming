@@ -3,6 +3,14 @@
 
 #include "I2C_cfg.h"
 
+#undef User_define_I2C_logic
+
+//member enum used specifically for user's string only, would be handled in interrupt
+typedef enum{
+  Comm_dir_Tx = (uint8_t)0,
+  Comm_dir_Rx = (uint8_t)1,
+}Comm_dir;
+
 /* API for Init task*/
 void I2C_Init(void);
 
@@ -19,6 +27,16 @@ void I2C_Master_Transmitt_Interrupt(uint8_t I2C_port_u8, uint16_t address_u16, u
 void I2C_Master_Read_Interrupt(uint8_t I2C_port_u8, uint16_t address_u16, uint8_t* data_string);
 
 
+/*API for Interrupt task*/
+//This function is visible to user, would be invoked when the whole transmission is done
+void I2C_Master_Transmitt_cplt(uint8_t I2C_port_u8);
+
+///User-define logic 
+#ifdef User_define_I2C_logic
+void  I2C_Master_TX_GP_callback(void);
+#endif
+
+
 //Member struct containing user's string
 typedef struct{
   uint8_t  container_pointer[100];
@@ -29,8 +47,9 @@ typedef struct{
 
   uint16_t slave_address; //for slave 
   uint16_t master_address; //for master
-}container_info;
+  Comm_dir I2C_Node_dir; //which Rx or Tx
+}I2C_container_info;
 
-extern container_info user_string[NUM_OF_I2C_NODE];
+extern I2C_container_info I2C_user_string[NUM_OF_I2C_NODE];
 
 #endif

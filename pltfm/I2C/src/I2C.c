@@ -1,5 +1,8 @@
 #include "I2C.h"
 
+
+I2C_container_info I2C_user_string[NUM_OF_I2C_NODE];
+
 /*
   @brief: Transmitt as Master using Interrupt mechanism. This function would keep Master constantly transmit data to slave
   @input: I2C_port_u8: index in main configuartion struct, address_u16: address of slave, either in 10-bit or 8-bit mode, uint8_t* data_string
@@ -45,6 +48,34 @@
 */
 void I2C_Master_Transmitt_Interrupt(uint8_t I2C_port_u8, uint16_t address_u16, uint8_t* data_string, uint8_t data_length_u8){
   //Note: This function would handle 7-bit address only
+
+  I2C_cfg temp_I2C_cfg = I2C_Conf_cst[I2C_port_u8];
+  uint8_t is_I2C_busy = 0; 
+
+  //Check whether the node is busy or not
+  is_I2C_busy = (temp_I2C_cfg.I2C_Node->SR2 & I2C_BUSY_BIT_MASK) >> I2C_BUSY_BIT_POS;
+
+  if(is_I2C_busy) return;
+
+  //First enable Interrupt request 
+  temp_I2C_cfg.I2C_Node->CR2 |= I2C_ERR_BIT_MASK; 
+  temp_I2C_cfg.I2C_Node->CR2 |= I2C_EVE_BIT_MASK; //currently event bit mask for  and error bit mask
+  temp_I2C_cfg.I2C_Node->CR2 |= I2C_BUFFER_BIT_MASK; //interrupt + event bit interrupt -> when TXE event: interrupt happens
+
+  //Store user string
+  I2C_user_string[I2C_port_u8].I2C_Node_dir = Comm_dir_Tx;
+  I2C_user_string[I2C_port_u8].container_length = data_length_u8;
+  I2C_user_string[I2C_port_u8].container_current_byte = 0;
+  I2C_user_string[I2C_port_u8].is_last_byte = 0;
+  I2C_user_string[I2C_port_u8].master_address = temp_I2C_cfg.I2C_Node_adress.Address_u16;
+  I2C_user_string[I2C_port_u8].slave_address = address_u16;
+
+  for(int i = 0; i  < data_length_u8; i++){
+   I2C_user_string[I2C_port_u8].container_pointer[i] = data_string[i];   
+  }
+
+  //Generate START BIT
+  temp_I2C_cfg.I2C_Node->CR1 |= I2C_START_BIT_MASK;
   
   return;
 }
