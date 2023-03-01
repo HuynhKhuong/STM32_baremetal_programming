@@ -24,16 +24,18 @@ void I2C_Init(void);
 
 
 void I2C_Master_Transmitt_Interrupt(uint8_t I2C_port_u8, uint16_t address_u16, uint8_t* data_string, uint8_t data_length_u8);
-void I2C_Master_Read_Interrupt(uint8_t I2C_port_u8, uint16_t address_u16, uint8_t* data_string);
+void I2C_Master_Read_Interrupt(uint8_t I2C_port_u8, uint16_t address_u16, uint8_t* data_string, uint8_t data_length);
 
 
 /*API for Interrupt task*/
 //This function is visible to user, would be invoked when the whole transmission is done
 void I2C_Master_Transmitt_cplt(uint8_t I2C_port_u8);
+void I2C_Master_Receive_cplt(uint8_t I2C_port_u8);
 
 ///User-define logic 
 #ifdef User_define_I2C_logic
-void  I2C_Master_TX_GP_callback(void);
+void I2C_Master_TX_GP_callback(void);
+void I2C_Master_RX_GP_callback(void);
 #endif
 
 

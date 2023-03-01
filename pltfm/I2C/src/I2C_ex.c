@@ -4,7 +4,10 @@
   @author: Huynh Khuong
   This file defines exception handling for I2C peripherals
 **************************************/
-
+/// local define supporting I2C reception
+#define MASTER_RX_3BYTES_LEFT     (uint8_t)2
+#define MASTER_RX_2BYTES_LEFT     (uint8_t)1
+#define MASTER_RX_1BYTES_LEFT     (uint8_t)0
 
 /*
   @brief: Kernel calling handling logic for I2C node as master
@@ -29,10 +32,12 @@ static void I2C_Master_Exception_handling(uint8_t I2C_Port_index){
   const uint8_t is_ADD_interrupt = (current_status)& I2C_ADD_STATUS_BIT_MASK;
   const uint8_t is_BYTE_interrupt = (current_status) & I2C_TXE_STATUS_BIT_MASK;
   const uint8_t is_BYTE_FINISH_interrupt = ((current_status) & I2C_BTF_STATUS_BIT_MASK) && (temp_container.is_last_byte);
+  const uint8_t is_BYTE_Recep_interrupt = ((current_status) & I2C_RXNE_STATUS_BIT_MASK)||((current_status) & I2C_BTF_STATUS_BIT_MASK);
+  const uint8_t is_BYTE_FINISH_Recep_interrupt = ((current_status) & I2C_RXNE_STATUS_BIT_MASK) && (temp_container.is_last_byte);
 
-  //As master transmits with a sequence of interrupts, with an interrupt detected, there are no previous interrupt (in the sequence) could occur
+  //As master transmits/receives with a sequence of interrupts, with an interrupt detected, there are no previous interrupt (in the sequence) could occur
   ///Handle as SB interrupt
-  if(is_SB_interrupt){
+  if(is_SB_interrupt){ // > 0 : true; //= 0 : false
     I2C_SB_Exception_call(I2C_Port_index, is_Master_TX);
     return;
   }
@@ -59,7 +64,18 @@ static void I2C_Master_Exception_handling(uint8_t I2C_Port_index){
 
   }
   else{ ///Is_Master_RX
-    /// Leave blank, would be handled later
+    ///The receiving strategy is based on approach 2 in user manual
+    //last byte received
+    if(is_BYTE_FINISH_Recep_interrupt){
+      I2C_Master_Receive_cplt(I2C_Port_index);
+      return;
+    }
+
+    //middle bytes received
+    if(is_BYTE_Recep_interrupt){ //handle in case multiple byte reception (N > 2)
+      I2C_BYTE_RECEIVED_Exception_call(I2C_Port_index);
+      return;
+    }
   }
 }
 
@@ -186,4 +202,75 @@ void I2C_Master_Transmitt_cplt(uint8_t I2C_port_u8){
   #ifdef User_define_I2C_logic
     I2C_Master_TX_GP_callback(); 
   #endif 
+}
+
+/// @brief This function handles bytes reception from first byte to the 2nd last byte following the approach 2 method described in STM32 manual
+/// @param I2C_Port_index 
+/// @return void
+
+void I2C_BYTE_RECEIVED_Exception_call(uint8_t I2C_Port_index){
+  // This function would continously receive bytes until there are 3 bytes left to be received
+
+  I2C_cfg temp_I2C_conf = I2C_Conf_cst[I2C_Port_index];
+  I2C_container_info* temp_container = &(I2C_user_string[I2C_Port_index]);
+  
+  uint8_t num_of_byte_left_u8 = (temp_container->container_length) - (temp_container->container_current_byte) - 1;
+
+  // Different strategy based on the number of byte left in reception
+  if(MASTER_RX_3BYTES_LEFT == num_of_byte_left_u8){
+    //Disable RxNE interrupt
+    temp_I2C_conf.I2C_Node->CR2 &= ~I2C_BUFFER_BIT_MASK;
+		temp_container->container_current_byte++;
+    //Take no action, wait for 3rd last byte in DR register & 2nd last byte in Shift register
+    //On 2nd last byte reception, BTF would trigger the reception, //stretch the SCL line down
+  }
+  else if(MASTER_RX_2BYTES_LEFT == num_of_byte_left_u8){
+    //Take 3rd last byte
+    //Trigger NACK
+    temp_I2C_conf.I2C_Node->CR1 &= ~I2C_ACK_STATUS_BIT_MASK;
+    temp_container->container_pointer[(temp_container->container_current_byte-1)] = temp_I2C_conf.I2C_Node->DR;
+    //A read to SR1 register -> read DR register -> clear BTF -> continue reception
+		temp_container->container_current_byte++;
+  }
+  else if(MASTER_RX_1BYTES_LEFT == num_of_byte_left_u8){
+    //Take 2nd last byte
+
+    //Configured RXnE condition to receive the last byte
+    (temp_I2C_conf.I2C_Node)->CR2 |= I2C_BUFFER_BIT_MASK;
+    //Configured STOP condition
+    (temp_I2C_conf.I2C_Node)->CR1 |= I2C_STOP_BIT_MASK;
+
+    temp_container->container_pointer[temp_container->container_current_byte-1] = temp_I2C_conf.I2C_Node->DR;
+    temp_container->is_last_byte = 1;
+  }
+  else{ //middle bytes
+    temp_container->container_pointer[temp_container->container_current_byte++] = temp_I2C_conf.I2C_Node->DR;
+  }
+  return;
+}
+
+/// @brief Function hanlding the last byte reception, would be visible to user
+/// @param I2C_port_u8 
+/// @return void
+void I2C_Master_Receive_cplt(uint8_t I2C_port_u8){
+  
+  I2C_cfg temp_I2C_conf = I2C_Conf_cst[I2C_port_u8];
+  I2C_container_info* temp_container = &(I2C_user_string[I2C_port_u8]);
+  ///disable all interrupt (except error interrupt)
+
+  (temp_I2C_conf.I2C_Node)->CR2 &= ~(I2C_BUFFER_BIT_MASK);
+  (temp_I2C_conf.I2C_Node)->CR2 &= ~(I2C_EVE_BIT_MASK);
+	temp_container->container_pointer[temp_container->container_current_byte] = temp_I2C_conf.I2C_Node->DR;
+	
+	//return to user's string
+
+  for(int i = 0; i < temp_container->container_length; i++){
+    temp_container->user_provided_string[i] = temp_container->container_pointer[i];
+  }
+  ///User-define logic section
+  #ifdef User_define_I2C_logic
+    I2C_Master_RX_GP_callback(); 
+  #endif 
+
+  return;
 }
