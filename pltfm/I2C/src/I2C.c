@@ -143,3 +143,10 @@ void I2C_Master_Read_Interrupt(uint8_t I2C_port_u8, uint16_t address_u16, uint8_
   return;
 }
 
+
+/// @brief: This function would return user the current state of I2C peripheral, support user to know whether the I2C is in communication or not
+/// @param I2C_port_u8: index in main configuartion struct,   
+/// @output: state of the I2C: 0-free, 1-in communication
+uint8_t Is_communication_over(uint8_t I2C_port_u8){
+  return 0;
+}
