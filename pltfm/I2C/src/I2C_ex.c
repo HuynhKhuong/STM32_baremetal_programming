@@ -190,6 +190,7 @@ void I2C_BYTE_TRANSMITTED_Exception_call(uint8_t I2C_Port_index){
 void I2C_Master_Transmitt_cplt(uint8_t I2C_port_u8){
 
   I2C_cfg temp_I2C_conf = I2C_Conf_cst[I2C_port_u8];
+  I2C_container_info* temp_container = &(I2C_user_string[I2C_port_u8]);
 
   ///disable all interrupt (except error interrupt)
   (temp_I2C_conf.I2C_Node)->CR2 &= ~(I2C_BUFFER_BIT_MASK);
@@ -198,6 +199,8 @@ void I2C_Master_Transmitt_cplt(uint8_t I2C_port_u8){
   ///Trigger stop condition would clear both TxE and BTF flag
   (temp_I2C_conf.I2C_Node)->CR1 |= I2C_STOP_BIT_MASK;
 
+  //Communication is over
+  (temp_container->is_communication_over) = 1; 
   ///User-define logic section
   #ifdef User_define_I2C_logic
     I2C_Master_TX_GP_callback(); 
@@ -267,6 +270,10 @@ void I2C_Master_Receive_cplt(uint8_t I2C_port_u8){
   for(int i = 0; i < temp_container->container_length; i++){
     temp_container->user_provided_string[i] = temp_container->container_pointer[i];
   }
+
+  //Communication is over
+  (temp_container->is_communication_over) = 1; 
+
   ///User-define logic section
   #ifdef User_define_I2C_logic
     I2C_Master_RX_GP_callback(); 

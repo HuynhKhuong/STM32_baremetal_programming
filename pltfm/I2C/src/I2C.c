@@ -67,6 +67,7 @@ void I2C_Master_Transmitt_Interrupt(uint8_t I2C_port_u8, uint16_t address_u16, u
   I2C_user_string[I2C_port_u8].container_length = data_length_u8;
   I2C_user_string[I2C_port_u8].container_current_byte = 0;
   I2C_user_string[I2C_port_u8].is_last_byte = 0;
+  I2C_user_string[I2C_port_u8].is_communication_over = 0; //Communication has just been started
   I2C_user_string[I2C_port_u8].master_address = temp_I2C_cfg.I2C_Node_adress.Address_u16;
   I2C_user_string[I2C_port_u8].slave_address = address_u16;
 
@@ -131,6 +132,7 @@ void I2C_Master_Read_Interrupt(uint8_t I2C_port_u8, uint16_t address_u16, uint8_
   I2C_user_string[I2C_port_u8].container_length = data_length_u8;
   I2C_user_string[I2C_port_u8].container_current_byte = 0;
   I2C_user_string[I2C_port_u8].is_last_byte = 0;                  //Specially, is_last_byte is used to detect the second last byte
+  I2C_user_string[I2C_port_u8].is_communication_over = 0; //Communication has just been started
   I2C_user_string[I2C_port_u8].master_address = temp_I2C_cfg.I2C_Node_adress.Address_u16;
   I2C_user_string[I2C_port_u8].slave_address = address_u16;
   I2C_user_string[I2C_port_u8].user_provided_string = data_string;
