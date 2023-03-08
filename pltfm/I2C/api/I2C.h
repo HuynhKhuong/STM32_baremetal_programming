@@ -22,7 +22,6 @@ void I2C_Init(void);
   a Master after sending out Slave address can become a data transmitter or a data receiver
 */
 
-
 void I2C_Master_Transmitt_Interrupt(uint8_t I2C_port_u8, uint16_t address_u16, uint8_t* data_string, uint8_t data_length_u8);
 void I2C_Master_Read_Interrupt(uint8_t I2C_port_u8, uint16_t address_u16, uint8_t* data_string, uint8_t data_length);
 
@@ -32,7 +31,7 @@ void I2C_Master_Read_Interrupt(uint8_t I2C_port_u8, uint16_t address_u16, uint8_
 void I2C_Master_Transmitt_cplt(uint8_t I2C_port_u8);
 void I2C_Master_Receive_cplt(uint8_t I2C_port_u8);
 
-///User-define logic 
+///User-define logic after the communication is done
 #ifdef User_define_I2C_logic
 void I2C_Master_TX_GP_callback(void);
 void I2C_Master_RX_GP_callback(void);
@@ -41,6 +40,7 @@ void I2C_Master_RX_GP_callback(void);
 
 //Member struct containing user's string
 typedef struct{
+  uint8_t  is_communication_over;
   uint8_t  container_pointer[100];
   uint32_t container_length;
   uint32_t container_current_byte;
@@ -53,5 +53,8 @@ typedef struct{
 }I2C_container_info;
 
 extern I2C_container_info I2C_user_string[NUM_OF_I2C_NODE];
+
+///APIs supporting runtime performance
+uint8_t Is_communication_over(uint8_t I2C_port_u8);
 
 #endif
