@@ -74,6 +74,36 @@ const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE] = {
   INPUT_MODE,
 	FLOATING_INPUT,
 	NOT_OUTPUT,
+},
+
+//5. PIN 6B, I2C SCL, AF OPEN_DRAIN
+{
+  {
+    &(RCC->APB2ENR), //RCC reg
+    PORT_B_Enable_bit
+  },
+  GPIOB,
+  &is_portB_configured,
+  PIN_6,
+  1, //reg CRL not CRH
+  OUTPUT_MODE_50MHz,
+  NOT_INPUT,
+  AL_OUTPUT_OD,
+},
+
+//6. PIN 7B, I2C SDA, AF OPEN_DRAIN 
+{
+  {
+    &(RCC->APB2ENR), //RCC reg
+    PORT_B_Enable_bit
+  },
+  GPIOB,
+  &is_portB_configured,
+  PIN_7,
+  1, //reg CRL not CRH
+  OUTPUT_MODE_50MHz,
+  NOT_INPUT,
+  AL_OUTPUT_OD,
 }
 };
 
