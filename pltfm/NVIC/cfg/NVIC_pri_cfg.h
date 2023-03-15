@@ -12,14 +12,11 @@ Define structure to configure priorities of interrupts registered by user
 #define NUM_OF_INTERRUPTS_REGISTERED     (uint8_t)3 ///
 
 typedef enum{
-  PRIGROUP_SEVEN_ONE = (uint32_t)0, //pre-emption priority = 7 bits, sub-priority = 1 bit
-  PRIGROUP_SIX_TWO = (uint32_t)1, 
-  PRIGROUP_FIVE_THREE = (uint32_t)2, 
-  PRIGROUP_FOUR_FOUR = (uint32_t)3, 
-  PRIGROUP_THREE_FIVE = (uint32_t)4,  
-  PRIGROUP_TWO_SIX = (uint32_t)5, 
-  PRIGROUP_ONE_SEVEN = (uint32_t)6, 
-  PRIGROUP_ZERO_EIGHT = (uint32_t)7, 
+  PRIGROUP_FOUR_ZERO = (uint32_t)0, //pre-emption priority = 4 bits, sub-priority = 1 bit
+  PRIGROUP_THREE_ONE = (uint32_t)1, 
+  PRIGROUP_TWO_TWO = (uint32_t)2, 
+  PRIGROUP_ONE_THREE = (uint32_t)3, 
+  PRIGROUP_ZERO_FOUR = (uint32_t)4,  
 }pri_group_div;
 
 typedef struct{
