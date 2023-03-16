@@ -1,11 +1,5 @@
 #include "NVIC_pri_cfg.h"
 
-#define GET_INTERRUPT_REGISTERED_STATUS(Interrupt_index)                        __NVIC_GetEnableIRQ(Interrupt_index)
-#define SET_INTERRUPT_REGISTERED_PRIORITY(Interrupt_index, Interrupt_priority)  __NVIC_SetPriority(Interrupt_index, Interrupt_priority)
-#define SET_PRIORITYGROUP(group_value)                                          __NVIC_SetPriorityGrouping(group_value) 
-
-#define MAX_NUMB_PRE_EMPTION_BIT  (uint32_t)4
-
 static pri_group_div global_pri_group = PRIGROUP_FOUR_ZERO;
 
 const Interrupt_prio_setup  interrupt_priority_conf[NUM_OF_INTERRUPTS_REGISTERED] = {

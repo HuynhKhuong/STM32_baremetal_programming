@@ -9,6 +9,12 @@
 Define structure to configure priorities of interrupts registered by user
 *************************/
 
+#define GET_INTERRUPT_REGISTERED_STATUS(Interrupt_index)                        __NVIC_GetEnableIRQ(Interrupt_index)
+#define SET_INTERRUPT_REGISTERED_PRIORITY(Interrupt_index, Interrupt_priority)  __NVIC_SetPriority(Interrupt_index, Interrupt_priority)
+#define SET_PRIORITYGROUP(group_value)                                          __NVIC_SetPriorityGrouping(group_value) 
+
+#define MAX_NUMB_PRE_EMPTION_BIT  (uint32_t)4
+
 #define NUM_OF_INTERRUPTS_REGISTERED     (uint8_t)3 ///
 
 typedef enum{
