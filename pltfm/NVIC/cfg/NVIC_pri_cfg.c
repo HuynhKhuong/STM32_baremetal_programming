@@ -1,8 +1,9 @@
 #include "NVIC_pri_cfg.h"
 
-static pri_group_div global_pri_group = PRIGROUP_FOUR_ZERO;
 
-const Interrupt_prio_setup  interrupt_priority_conf[NUM_OF_INTERRUPTS_REGISTERED] = {
+const pri_group_div global_pri_group = PRIGROUP_FOUR_ZERO;
+
+Interrupt_prio_setup  interrupt_priority_conf[NUM_OF_INTERRUPTS_REGISTERED] = {
   ////Group1
   {
     USART1_IRQ, //UART1 interrupt

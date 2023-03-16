@@ -31,6 +31,7 @@ typedef struct{
   uint32_t sub_priority;
 }Interrupt_prio_setup;
 
-extern const Interrupt_prio_setup interrupt_priority_conf[NUM_OF_INTERRUPTS_REGISTERED];
+extern Interrupt_prio_setup interrupt_priority_conf[NUM_OF_INTERRUPTS_REGISTERED];
+extern const pri_group_div global_pri_group;
 
 #endif 
