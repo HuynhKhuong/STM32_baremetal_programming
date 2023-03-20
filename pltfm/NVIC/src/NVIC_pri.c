@@ -9,6 +9,7 @@
 
 #define DISABLE_INTERRUPT(interrupt_instance)     __NVIC_DisableIRQ(interrupt_instance)
 #define ENABLE_INTERRUPT(interrupt_instance)      __NVIC_EnableIRQ(interrupt_instance)
+#define INTERRUPT_NOT_REGISTERED_FLAG             (uint32_t)16
 
 /// @brief Update interrupt priority order of a specific interrupt, Update the setup in the main configuration struct
 /// @param interrupt_index index of an interrupt instance in main configuration struct
@@ -48,6 +49,26 @@ void Set_Interrupt_prio(uint8_t interrupt_index, uint32_t pre_emption_val_u32, u
 }
 
 
-uint32_t Get_Interrupt_prio(uint8_t interrupt_instance){
-	return 0;
+/// @brief Get interrupt priority order of a specific interrupt, Update the setup in the main configuration struct
+/// @param interrupt_index index of an interrupt instance in main configuration struct
+/// @return the encoded register value of that interrupt instance
+
+uint32_t Get_Interrupt_prio(uint8_t interrupt_index){
+
+  uint8_t is_interrupt_registered = 1;
+  uint32_t final_priority_val = 0;
+
+  const uint32_t sub_prio_index = (global_pri_group);
+	Interrupt_prio_setup *temp_interrupt_prio_setup = &interrupt_priority_conf[interrupt_index];
+	
+  is_interrupt_registered  = GET_INTERRUPT_REGISTERED_STATUS(temp_interrupt_prio_setup->interrupt_instance);
+
+  if(is_interrupt_registered == 0){
+    final_priority_val = INTERRUPT_NOT_REGISTERED_FLAG;
+  }
+  else{
+    final_priority_val  = (temp_interrupt_prio_setup->pre_emption << sub_prio_index) | temp_interrupt_prio_setup->sub_priority;
+  }
+
+	return final_priority_val;
 }
