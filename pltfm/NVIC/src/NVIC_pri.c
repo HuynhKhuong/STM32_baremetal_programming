@@ -72,3 +72,28 @@ uint32_t Get_Interrupt_prio(uint8_t interrupt_index){
 
 	return final_priority_val;
 }
+
+/// @brief Disable interrupt registered in the NVIC before
+/// @param interrupt_index 
+void Interrupt_disable(uint8_t interrupt_index){
+  uint8_t is_interrupt_registered = 1;
+	Interrupt_prio_setup *temp_interrupt_prio_setup = &interrupt_priority_conf[interrupt_index];
+	
+  is_interrupt_registered  = GET_INTERRUPT_REGISTERED_STATUS(temp_interrupt_prio_setup->interrupt_instance);
+  if(is_interrupt_registered == 1){
+    DISABLE_INTERRUPT(temp_interrupt_prio_setup->interrupt_instance);
+  }
+}
+
+/// @brief Register the interrupt to NVIC
+/// @param interrupt_index 
+void Interrupt_enable(uint8_t interrupt_index){
+  uint8_t is_interrupt_registered = 1;
+	Interrupt_prio_setup *temp_interrupt_prio_setup = &interrupt_priority_conf[interrupt_index];
+	
+  is_interrupt_registered  = GET_INTERRUPT_REGISTERED_STATUS(temp_interrupt_prio_setup->interrupt_instance);
+
+  if(is_interrupt_registered == 0){
+    ENABLE_INTERRUPT(temp_interrupt_prio_setup->interrupt_instance);
+  }
+}
