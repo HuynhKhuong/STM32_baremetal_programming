@@ -1,7 +1,7 @@
 #include "NVIC_pri_cfg.h"
 
 
-const pri_group_div global_pri_group = PRIGROUP_FOUR_ZERO;
+const pri_group_div global_pri_group = PRIGROUP_TWO_TWO;
 
 Interrupt_prio_setup  interrupt_priority_conf[NUM_OF_INTERRUPTS_REGISTERED] = {
   ////Group1
@@ -49,12 +49,18 @@ void Excp_pri_cfg(void){
 		temp_interrupt_prio_setup = interrupt_priority_conf[i];
     is_interrupt_registered  = GET_INTERRUPT_REGISTERED_STATUS(temp_interrupt_prio_setup.interrupt_instance);
 
-    if(is_interrupt_registered == 0) continue;
+    
     if(temp_interrupt_prio_setup.pre_emption > max_pre_emption_value) continue;
     if(temp_interrupt_prio_setup.sub_priority > max_sub_prio_value) continue;
 
     final_priority_val  = (temp_interrupt_prio_setup.pre_emption << sub_prio_index) | temp_interrupt_prio_setup.sub_priority;
-
-    SET_INTERRUPT_REGISTERED_PRIORITY(temp_interrupt_prio_setup.interrupt_instance, final_priority_val);
+		if(is_interrupt_registered == 0){
+			SET_INTERRUPT_REGISTERED_PRIORITY(temp_interrupt_prio_setup.interrupt_instance, final_priority_val);		
+		}
+		else{
+			DISABLE_INTERRUPT(temp_interrupt_prio_setup.interrupt_instance);     
+			SET_INTERRUPT_REGISTERED_PRIORITY(temp_interrupt_prio_setup.interrupt_instance, final_priority_val);		
+			ENABLE_INTERRUPT(temp_interrupt_prio_setup.interrupt_instance);      
+		}
   }
 }
