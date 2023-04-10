@@ -7,8 +7,7 @@
 
 ********************************/
 
-#define DISABLE_INTERRUPT(interrupt_instance)     __NVIC_DisableIRQ(interrupt_instance)
-#define ENABLE_INTERRUPT(interrupt_instance)      __NVIC_EnableIRQ(interrupt_instance)
+
 #define INTERRUPT_NOT_REGISTERED_FLAG             (uint32_t)16
 
 /// @brief Update interrupt priority order of a specific interrupt, Update the setup in the main configuration struct

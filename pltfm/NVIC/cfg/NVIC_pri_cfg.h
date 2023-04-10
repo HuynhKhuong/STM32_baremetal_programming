@@ -12,6 +12,8 @@ Define structure to configure priorities of interrupts registered by user
 #define GET_INTERRUPT_REGISTERED_STATUS(Interrupt_index)                        __NVIC_GetEnableIRQ(Interrupt_index)
 #define SET_INTERRUPT_REGISTERED_PRIORITY(Interrupt_index, Interrupt_priority)  __NVIC_SetPriority(Interrupt_index, Interrupt_priority)
 #define SET_PRIORITYGROUP(group_value)                                          __NVIC_SetPriorityGrouping(group_value) 
+#define DISABLE_INTERRUPT(interrupt_instance)     															__NVIC_DisableIRQ(interrupt_instance)
+#define ENABLE_INTERRUPT(interrupt_instance)      															__NVIC_EnableIRQ(interrupt_instance)
 
 #define MAX_NUMB_PRE_EMPTION_BIT  (uint32_t)4
 
