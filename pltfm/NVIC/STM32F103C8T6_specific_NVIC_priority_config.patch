@@ -1,0 +1,181 @@
+diff --git a/pltfm/NVIC/cfg/NVIC_pri_cfg.c b/pltfm/NVIC/cfg/NVIC_pri_cfg.c
+index 9f07306..9d4e933 100644
+--- a/pltfm/NVIC/cfg/NVIC_pri_cfg.c
++++ b/pltfm/NVIC/cfg/NVIC_pri_cfg.c
+@@ -3,22 +3,34 @@
+ 
+ const pri_group_div global_pri_group = PRIGROUP_TWO_TWO;
+ 
++/**********************************************************************************************
++ * This section is the patch for current MCU chip  
++ * After experiments, this STM32F103C8T6 could only be configured these below priority values: 
++ * - 0010 0000: pre-emption = 0; sub-prio = 2
++ * - 0100 0000: pre-emption = 1; sub-prio = 0
++ * - 0101 1100: pre-emption = 1; sub-prio = 1; lower bits are discarded but must be added as input
++ * - 1000 0000: pre-emption = 2; sub-prio = 0
++ * - 1010 0000: pre-emption = 2; sub-prio = 2
++ * - 1100 0000: pre-emption = 3; sub-prio = 0
++ * - 1110 0000: pre-emption = 3; sub-prio = 2
++****************************************************************************************************/
+ Interrupt_prio_setup  interrupt_priority_conf[NUM_OF_INTERRUPTS_REGISTERED] = {
+-  ////Group1
++  ////Group0
+   {
+     USART1_IRQ, //UART1 interrupt
+     0,
+     0
+   },
++  ////Group1
+   {
+     I2C1_EV_IRQn,///I2C1 Event interrupt
+-    0,
+-    1
++    1,
++    0
+   },
+   {
+     I2C1_ER_IRQn, ///I2C1 Error interrupt
+-    0,
+-    2
++    1,
++    1
+   }
+ };
+ 
+@@ -53,7 +65,44 @@ void Excp_pri_cfg(void){
+     if(temp_interrupt_prio_setup.pre_emption > max_pre_emption_value) continue;
+     if(temp_interrupt_prio_setup.sub_priority > max_sub_prio_value) continue;
+ 
+-    final_priority_val  = (temp_interrupt_prio_setup.pre_emption << sub_prio_index) | temp_interrupt_prio_setup.sub_priority;
++    /**********************************************************************************************
++     * This section is the patch for current MCU chip  
++     * After experiments, this STM32F103C8T6 could only be configured these below priority values: 
++     * - 0010 0000: pre-emption = 0; sub-prio = 2
++     * - 0100 0000: pre-emption = 1; sub-prio = 0
++     * - 0101 1100: pre-emption = 1; sub-prio = 1; lower bits are discarded but must be added as input
++     * - 1000 0000: pre-emption = 2; sub-prio = 0
++     * - 1010 0000: pre-emption = 2; sub-prio = 2
++     * - 1100 0000: pre-emption = 3; sub-prio = 0
++     * - 1110 0000: pre-emption = 3; sub-prio = 2
++    ****************************************************************************************************/
++    if(temp_interrupt_prio_setup.pre_emption == 0) final_priority_val = PRIO_PREEMPT_0; 
++    if(temp_interrupt_prio_setup.pre_emption == 1){
++      if(temp_interrupt_prio_setup.sub_priority == 0){
++        final_priority_val = PRIO_PREEMPT_1_SUB_0;
++      } 
++      else{
++        final_priority_val = PRIO_PREEMPT_1_SUB_1;
++      }
++    }
++    if(temp_interrupt_prio_setup.pre_emption == 2){
++      if(temp_interrupt_prio_setup.sub_priority == 0){
++        final_priority_val = PRIO_PREEMPT_2_SUB_0;
++      } 
++      else{
++        final_priority_val = PRIO_PREEMPT_2_SUB_2;
++      }
++    }
++    if(temp_interrupt_prio_setup.pre_emption == 3){
++      if(temp_interrupt_prio_setup.sub_priority == 0){
++        final_priority_val = PRIO_PREEMPT_3_SUB_0;
++      } 
++      else{
++        final_priority_val = PRIO_PREEMPT_3_SUB_2;
++      }
++    }
++
++    //final_priority_val  = (temp_interrupt_prio_setup.pre_emption << sub_prio_index) | temp_interrupt_prio_setup.sub_priority; //Discard this line for patching
+ 		if(is_interrupt_registered == 0){
+ 			SET_INTERRUPT_REGISTERED_PRIORITY(temp_interrupt_prio_setup.interrupt_instance, final_priority_val);		
+ 		}
+diff --git a/pltfm/NVIC/cfg/NVIC_pri_cfg.h b/pltfm/NVIC/cfg/NVIC_pri_cfg.h
+index 3cc36f7..e27419b 100644
+--- a/pltfm/NVIC/cfg/NVIC_pri_cfg.h
++++ b/pltfm/NVIC/cfg/NVIC_pri_cfg.h
+@@ -10,7 +10,7 @@ Define structure to configure priorities of interrupts registered by user
+ *************************/
+ 
+ #define GET_INTERRUPT_REGISTERED_STATUS(Interrupt_index)                        __NVIC_GetEnableIRQ(Interrupt_index)
+-#define SET_INTERRUPT_REGISTERED_PRIORITY(Interrupt_index, Interrupt_priority)  __NVIC_SetPriority(Interrupt_index, Interrupt_priority)
++#define SET_INTERRUPT_REGISTERED_PRIORITY(Interrupt_index, Interrupt_priority)  NVIC->IP[Interrupt_index] = Interrupt_priority; //Work around for patch file
+ #define SET_PRIORITYGROUP(group_value)                                          __NVIC_SetPriorityGrouping(group_value) 
+ #define DISABLE_INTERRUPT(interrupt_instance)     															__NVIC_DisableIRQ(interrupt_instance)
+ #define ENABLE_INTERRUPT(interrupt_instance)      															__NVIC_EnableIRQ(interrupt_instance)
+@@ -27,6 +27,27 @@ typedef enum{
+   PRIGROUP_ZERO_FOUR = (uint32_t)4,  
+ }pri_group_div;
+ 
++/**********************************************************************************************
++ * This section is the patch for current MCU chip  
++ * After experiments, this STM32F103C8T6 could only be configured these below priority values: 
++ * - 0010 0000: pre-emption = 0; sub-prio = 2
++ * - 0100 0000: pre-emption = 1; sub-prio = 0
++ * - 0101 1100: pre-emption = 1; sub-prio = 1; lower bits are discarded but must be added as input
++ * - 1000 0000: pre-emption = 2; sub-prio = 0
++ * - 1010 0000: pre-emption = 2; sub-prio = 2
++ * - 1100 0000: pre-emption = 3; sub-prio = 0
++ * - 1110 0000: pre-emption = 3; sub-prio = 2
++****************************************************************************************************/
++#define PRIO_PREEMPT_0        (uint8_t)0x20
++#define PRIO_PREEMPT_1_SUB_0  (uint8_t)0x40
++#define PRIO_PREEMPT_1_SUB_1  (uint8_t)0x60
++#define PRIO_PREEMPT_2_SUB_0  (uint8_t)0x80
++#define PRIO_PREEMPT_2_SUB_2  (uint8_t)0xA0
++#define PRIO_PREEMPT_3_SUB_0  (uint8_t)0xC0
++#define PRIO_PREEMPT_3_SUB_2  (uint8_t)0xE0
++
++
++
+ typedef struct{
+   IRQn_Type interrupt_instance;
+   uint32_t pre_emption;
+diff --git a/pltfm/NVIC/src/NVIC_pri.c b/pltfm/NVIC/src/NVIC_pri.c
+index 36ac705..fe0ce5a 100644
+--- a/pltfm/NVIC/src/NVIC_pri.c
++++ b/pltfm/NVIC/src/NVIC_pri.c
+@@ -35,7 +35,44 @@ void Set_Interrupt_prio(uint8_t interrupt_index, uint32_t pre_emption_val_u32, u
+   if(temp_interrupt_prio_setup->pre_emption > max_pre_emption_value) return;
+   if(temp_interrupt_prio_setup->sub_priority > max_sub_prio_value) return;
+ 
+-  final_priority_val  = (temp_interrupt_prio_setup->pre_emption << sub_prio_index) | temp_interrupt_prio_setup->sub_priority;
++    /**********************************************************************************************
++     * This section is the patch for current MCU chip  
++     * After experiments, this STM32F103C8T6 could only be configured these below priority values: 
++     * - 0010 0000: pre-emption = 0; sub-prio = 2
++     * - 0100 0000: pre-emption = 1; sub-prio = 0
++     * - 0101 1100: pre-emption = 1; sub-prio = 1; lower bits are discarded but must be added as input
++     * - 1000 0000: pre-emption = 2; sub-prio = 0
++     * - 1010 0000: pre-emption = 2; sub-prio = 2
++     * - 1100 0000: pre-emption = 3; sub-prio = 0
++     * - 1110 0000: pre-emption = 3; sub-prio = 2
++    ****************************************************************************************************/
++    if(temp_interrupt_prio_setup->pre_emption == 0) final_priority_val = PRIO_PREEMPT_0; 
++    if(temp_interrupt_prio_setup->pre_emption == 1){
++      if(temp_interrupt_prio_setup->sub_priority == 0){
++        final_priority_val = PRIO_PREEMPT_1_SUB_0;
++      } 
++      else{
++        final_priority_val = PRIO_PREEMPT_1_SUB_1;
++      }
++    }
++    if(temp_interrupt_prio_setup->pre_emption == 2){
++      if(temp_interrupt_prio_setup->sub_priority == 0){
++        final_priority_val = PRIO_PREEMPT_2_SUB_0;
++      } 
++      else{
++        final_priority_val = PRIO_PREEMPT_2_SUB_2;
++      }
++    }
++    if(temp_interrupt_prio_setup->pre_emption == 3){
++      if(temp_interrupt_prio_setup->sub_priority == 0){
++        final_priority_val = PRIO_PREEMPT_3_SUB_0;
++      } 
++      else{
++        final_priority_val = PRIO_PREEMPT_3_SUB_2;
++      }
++    }
++  
++  ///final_priority_val  = (temp_interrupt_prio_setup->pre_emption << sub_prio_index) | temp_interrupt_prio_setup->sub_priority;
+ 
+   ///setup priority and modify main configuration struct
+   temp_interrupt_prio_setup->pre_emption = pre_emption_val_u32;
