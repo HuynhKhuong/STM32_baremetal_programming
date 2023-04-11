@@ -13,6 +13,24 @@ uint8_t is_portB_configured = 0;
 uint8_t is_portC_configured = 0;
 uint8_t is_portD_configured = 0;
 
+//flags indicating interrupt line status
+uint8_t is_line_0_configured = 0;
+uint8_t is_line_1_configured = 0;
+uint8_t is_line_2_configured = 0;
+uint8_t is_line_3_configured = 0;
+uint8_t is_line_4_configured = 0;
+uint8_t is_line_5_configured = 0;
+uint8_t is_line_6_configured = 0;
+uint8_t is_line_7_configured = 0;
+uint8_t is_line_8_configured = 0;
+uint8_t is_line_9_configured = 0;
+uint8_t is_line_10_configured = 0;
+uint8_t is_line_11_configured = 0;
+uint8_t is_line_12_configured = 0;
+uint8_t is_line_13_configured = 0;
+uint8_t is_line_14_configured = 0;
+uint8_t is_line_15_configured = 0;
+
 //struct used to configure GPIO on PIN level
 const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE] = {
 //1. PIN 13C, OUTPUT PUSH_PULL
@@ -28,7 +46,12 @@ const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE] = {
   0, //reg CRH not reg CRL
   OUTPUT_MODE_10MHz, 
   NOT_INPUT,
-  OUTPUT_PP
+  OUTPUT_PP,
+  {
+    NO_EVENT,
+    NULL, //This variable would be discarded
+    0, //This variable would be discarded
+  }
 },
 
 //2. PIN 1A, INPUT PULL_UP, PULL_DOWN
@@ -43,7 +66,12 @@ const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE] = {
   1, //reg CRL not CRH
   INPUT_MODE,
   PUPD_INPUT,
-  NOT_OUTPUT
+  NOT_OUTPUT,
+  {
+    NO_EVENT,
+    NULL, //This variable would be discarded
+    0, //This variable would be discarded
+  }
 },
 
 //3. PIN 9A, UART TX PIN, ALT_OUTPUT
@@ -59,6 +87,11 @@ const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE] = {
   OUTPUT_MODE_50MHz,
   NOT_INPUT,
   AL_OUTPUT_PP,
+  {
+    NO_EVENT,
+    NULL, //This variable would be discarded
+    0, //This variable would be discarded
+  }
 },
 
 //4. PIN 10A, UART RX PIN, FLOATING INPUT
@@ -74,6 +107,11 @@ const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE] = {
   INPUT_MODE,
 	FLOATING_INPUT,
 	NOT_OUTPUT,
+  {
+    NO_EVENT,
+    NULL, //This variable would be discarded
+    0, //This variable would be discarded
+  }
 },
 
 //5. PIN 6B, I2C SCL, AF OPEN_DRAIN
@@ -89,6 +127,11 @@ const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE] = {
   OUTPUT_MODE_50MHz,
   NOT_INPUT,
   AL_OUTPUT_OD,
+  {
+    NO_EVENT,
+    NULL, //This variable would be discarded
+    0, //This variable would be discarded
+  }
 },
 
 //6. PIN 7B, I2C SDA, AF OPEN_DRAIN 
@@ -104,6 +147,11 @@ const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE] = {
   OUTPUT_MODE_50MHz,
   NOT_INPUT,
   AL_OUTPUT_OD,
+  {
+    NO_EVENT,
+    NULL, //This variable would be discarded
+    0, //This variable would be discarded
+  }
 }
 };
 
