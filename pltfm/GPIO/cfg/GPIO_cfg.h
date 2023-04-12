@@ -6,14 +6,14 @@
 Define structures to add configurations to GPIO peripherals
 *************************/
 #include "stm32f10x.h"
-
+#include "NVIC_pri.h"
 //A struct containing a pin level configuration
 
 //The procedure includes 2 steps: 
 //1. RCC configuration
 //2. Pin configuration (GPIO registers)
 
-#define NUM_OF_PINS_CONFIGURE         (uint32_t)6
+#define NUM_OF_PINS_CONFIGURE         (uint32_t)7
 //Because the configuration is for pin level, Some configurations for port level are common and no need to 
 //repeat the some steps. Flags are used to indicate whether the configuration is done before or not 
 extern uint8_t is_portA_configured;
@@ -128,14 +128,12 @@ typedef enum{
 }TRIGGER_EVENT;
 
 typedef struct{
-  TRIGGER_EVENT interrupt_trigger_event; /// NO_EVENT means that this pin is not configured for interrupt indicating, 
+  TRIGGER_EVENT interrupt_trigger_event; ///NO_EVENT means that this pin is not configured for interrupt indicating, 
                                          ///other variables' value would be discarded
   uint8_t* is_interrupt_line_configured; ///Various pins are attached into a single interrupt line, 
                                          ///this variable is to indicate that the line is attached to a specific pin before
   IRQn_Type NVIC_index;
 }EXT_Interrupt_Config;
-
-///
 
 
 //Main struct
