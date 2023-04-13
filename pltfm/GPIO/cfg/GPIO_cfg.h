@@ -48,6 +48,15 @@ typedef enum{
   PORT_D_Enable_bit = RCC_APB2ENR_IOPDEN                
 }GPIO_RCC_conf;
 
+typedef enum{
+  PORT_A_pin_x = (uint32_t)0x00,
+  PORT_B_pin_x = (uint32_t)0x01,
+  PORT_C_pin_x = (uint32_t)0x02,
+  PORT_D_pin_x = (uint32_t)0x03,
+  PORT_E_pin_x = (uint32_t)0x04,
+  PORT_F_pin_x = (uint32_t)0x05, 
+  PORT_G_pin_x = (uint32_t)0x06
+}Port_AF_Configure_Val;
 
 //Member struct used for configurating RCC for GPIO Port
 typedef struct{
@@ -132,6 +141,8 @@ typedef struct{
                                          ///other variables' value would be discarded
   uint8_t* is_interrupt_line_configured; ///Various pins are attached into a single interrupt line, 
                                          ///this variable is to indicate that the line is attached to a specific pin before
+  volatile uint32_t* AF_Register;         ///To configure EXTI, this pin must be configured as AF input pin
+  Port_AF_Configure_Val Port;
   IRQn_Type NVIC_index;
 }EXT_Interrupt_Config;
 
