@@ -1,9 +1,7 @@
 #include "GPIO.h"
 
+///  @brief: an internal functions helping to re-map pin index to its position in BSRR register
 static uint32_t BSRR_Remapping(uint32_t PIN, uint32_t bit_state){
-/*
-  @brief: an internal functions helping to re-map pin index to its position in BSRR register
-*/
   //BSRR register is 32-bit long, devided into 2 sections
   //16 high bits are used to reset state of 16 pins 
   //16 low bits are used to set state of 16 pins 
@@ -104,4 +102,15 @@ uint32_t is_pin_configured(uint32_t pin_index){
 
   //All conditions passed
   return result;
+}
+
+/// @brief this API provides user the ability to dynamically disable EXT_Interrupt on a specific line
+/// @param pin_index: pin_index in the main configure struct
+void GPIO_EXT_disable(uint32_t pin_index){
+  //To disable Interrupt line
+  //Disable Interrupt Mask and NVIC_registeration
+  GPIO_conf temp_pin_conf_str = GPIO_conf_cst[pin_index];
+
+  EXTI->IMR &= ~(((uint8_t)0x01) << temp_pin_conf_str.PIN_Index);
+  DISABLE_INTERRUPT(temp_pin_conf_str.Pin_Interrupt_cnf.NVIC_index);
 }

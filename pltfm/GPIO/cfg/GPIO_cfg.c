@@ -7,11 +7,35 @@ Configure structures to add configurations to GPIO peripherals
 Configuring logic to init GPIO peripherals 
 *************************/
 
+#define EXTI_Line0_Interrupt EXTI0_IRQn
+#define EXTI_Line1_Interrupt EXTI1_IRQn
+#define EXTI_Line2_Interrupt EXTI2_IRQn
+#define EXTI_Line3_Interrupt EXTI3_IRQn
+#define EXTI_Line4_Interrupt EXTI4_IRQn
+
 //flags indicating port status
 uint8_t is_portA_configured = 0;
 uint8_t is_portB_configured = 0;
 uint8_t is_portC_configured = 0;
 uint8_t is_portD_configured = 0;
+
+//flags indicating interrupt line status
+uint8_t is_line_0_configured = 0;
+uint8_t is_line_1_configured = 0;
+uint8_t is_line_2_configured = 0;
+uint8_t is_line_3_configured = 0;
+uint8_t is_line_4_configured = 0;
+uint8_t is_line_5_configured = 0;
+uint8_t is_line_6_configured = 0;
+uint8_t is_line_7_configured = 0;
+uint8_t is_line_8_configured = 0;
+uint8_t is_line_9_configured = 0;
+uint8_t is_line_10_configured = 0;
+uint8_t is_line_11_configured = 0;
+uint8_t is_line_12_configured = 0;
+uint8_t is_line_13_configured = 0;
+uint8_t is_line_14_configured = 0;
+uint8_t is_line_15_configured = 0;
 
 //struct used to configure GPIO on PIN level
 const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE] = {
@@ -28,7 +52,14 @@ const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE] = {
   0, //reg CRH not reg CRL
   OUTPUT_MODE_10MHz, 
   NOT_INPUT,
-  OUTPUT_PP
+  OUTPUT_PP,
+  {
+    NO_EVENT,
+    NULL, //This variable would be discarded
+    NULL,
+    PORT_C_pin_x,
+    0, //This variable would be discarded
+  }
 },
 
 //2. PIN 1A, INPUT PULL_UP, PULL_DOWN
@@ -43,7 +74,14 @@ const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE] = {
   1, //reg CRL not CRH
   INPUT_MODE,
   PUPD_INPUT,
-  NOT_OUTPUT
+  NOT_OUTPUT,
+  {
+    NO_EVENT,
+    NULL, //This variable would be discarded
+    NULL,
+    PORT_A_pin_x,
+    0, //This variable would be discarded
+  }
 },
 
 //3. PIN 9A, UART TX PIN, ALT_OUTPUT
@@ -59,6 +97,13 @@ const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE] = {
   OUTPUT_MODE_50MHz,
   NOT_INPUT,
   AL_OUTPUT_PP,
+  {
+    NO_EVENT,
+    NULL, //This variable would be discarded
+    NULL,
+    PORT_A_pin_x,
+    0, //This variable would be discarded
+  }
 },
 
 //4. PIN 10A, UART RX PIN, FLOATING INPUT
@@ -74,6 +119,13 @@ const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE] = {
   INPUT_MODE,
 	FLOATING_INPUT,
 	NOT_OUTPUT,
+  {
+    NO_EVENT,
+    NULL, //This variable would be discarded
+    NULL,
+    PORT_A_pin_x,
+    0, //This variable would be discarded
+  }
 },
 
 //5. PIN 6B, I2C SCL, AF OPEN_DRAIN
@@ -89,6 +141,13 @@ const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE] = {
   OUTPUT_MODE_50MHz,
   NOT_INPUT,
   AL_OUTPUT_OD,
+  {
+    NO_EVENT,
+    NULL, //This variable would be discarded
+    NULL,
+    PORT_B_pin_x,
+    0, //This variable would be discarded
+  }
 },
 
 //6. PIN 7B, I2C SDA, AF OPEN_DRAIN 
@@ -104,7 +163,36 @@ const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE] = {
   OUTPUT_MODE_50MHz,
   NOT_INPUT,
   AL_OUTPUT_OD,
-}
+  {
+    NO_EVENT,
+    NULL, //This variable would be discarded
+    NULL,
+    PORT_B_pin_x,
+    0, //This variable would be discarded
+  }
+},
+
+//7. PIN 0A, INPUT PULL-UP, PULL-DOWN, INTERRUPT LINE 0
+{
+	{
+    &(RCC->APB2ENR), //RCC reg
+    PORT_A_Enable_bit
+  },
+  GPIOA,
+  &is_portA_configured,
+  PIN_0,
+  1, //reg CRL not CRH
+  INPUT_MODE,
+  PUPD_INPUT,
+  NOT_OUTPUT,
+  {
+    BOTH_RISING_FALLING_EDGE,
+    &is_line_0_configured,
+    &AFIO->EXTICR[0],
+    PORT_A_pin_x,
+    EXTI_Line0_Interrupt
+  }
+},
 };
 
 //Mapping from cnf/mode enum to bit position
@@ -121,6 +209,55 @@ static uint32_t CR_reg_bit_mapping(uint32_t PIN, uint32_t BITS) {
   //Their index should be remapped into 8-pin groups before being mapped into CR registers
   uint32_t pin_group_mapping_u32 = (PIN%8);
   return (uint32_t)(((uint32_t)0 | BITS) << (pin_group_mapping_u32*BIT_POS_SHIFT));
+}
+
+
+///  @brief: A kernel mapping bits to CRH/CRL GPIO register
+///  @input: PIN index (0->31), BITS value (ranges from 0-15, depends on what PIN index)
+///  @output: values which are mapped to the pin position in the AF register
+
+static uint32_t AF_reg_bit_mapping(uint32_t PIN, uint32_t BITS) {
+  //STM32 AF registers are devided into 4 regs, each supports 4 pins configuration 
+  //In Author's definition, pins are described from 0 -> 31
+  //Their index should be remapped into 4-pin groups before being mapped into AF registers
+  uint32_t pin_group_mapping_u32 = (PIN%4);
+  return (uint32_t)(((uint32_t)0 | BITS) << (pin_group_mapping_u32*BIT_POS_SHIFT));
+}
+
+/// @brief static function configuring the EXT line if required
+/// @param pin_index: the index of the pin in the main configuring struct
+
+static void EXTI_Configure(uint8_t pin_index){
+
+  GPIO_conf temp_pin_conf_str = GPIO_conf_cst[pin_index];
+  uint8_t rising_edge_configure_flag = (temp_pin_conf_str.Pin_Interrupt_cnf.interrupt_trigger_event == BOTH_RISING_FALLING_EDGE) || (temp_pin_conf_str.Pin_Interrupt_cnf.interrupt_trigger_event == RISING_EDGE);
+  uint8_t falling_edge_configure_flag = (temp_pin_conf_str.Pin_Interrupt_cnf.interrupt_trigger_event == BOTH_RISING_FALLING_EDGE) || (temp_pin_conf_str.Pin_Interrupt_cnf.interrupt_trigger_event == FALLING_EDGE);
+
+  //Pre-condition check
+  if(temp_pin_conf_str.Pin_Interrupt_cnf.interrupt_trigger_event == NO_EVENT) return; //This pin is not meant interrupt configured
+  if(temp_pin_conf_str.Pin_Mode > INPUT_MODE) return;                                 //To configure EXT interrupt, the pin must be input mode
+  if(*(temp_pin_conf_str.Pin_Interrupt_cnf.is_interrupt_line_configured) == 1) return;//This EXT line has been configured
+
+  //Configure EXT mask pin
+  EXTI->IMR |= ((uint8_t)0x01) << temp_pin_conf_str.PIN_Index;
+
+  //Configure trigger event type
+  if(rising_edge_configure_flag == 1){
+    EXTI->RTSR |= ((uint8_t)0x01) << temp_pin_conf_str.PIN_Index;
+  }
+
+  if(falling_edge_configure_flag ){
+    EXTI->FTSR |= ((uint8_t)0x01) << temp_pin_conf_str.PIN_Index;
+  }
+
+  //Configure pin as INPUT AF Pin
+  *(temp_pin_conf_str.Pin_Interrupt_cnf.AF_Register) |= AF_reg_bit_mapping(temp_pin_conf_str.PIN_Index,temp_pin_conf_str.Pin_Interrupt_cnf.Port);
+
+  //Enable interrupt with NVIC
+  ENABLE_INTERRUPT(temp_pin_conf_str.Pin_Interrupt_cnf.NVIC_index);
+	
+	//Mark that this interrupt line has been configured
+	*(temp_pin_conf_str.Pin_Interrupt_cnf.is_interrupt_line_configured) = 1;
 }
 
 /*
@@ -150,6 +287,13 @@ void GPIO_Init(void){
   uint32_t CNF_MODE_bits_mapped_u32 = 0;
   uint32_t pins_position_mapped_u32 = 0;
   volatile uint32_t *CR_reg_u32 = NULL;
+
+  volatile uint32_t* AFIO_EN_reg = &(RCC->APB2ENR);
+  
+  // For all other peripherals that uses I/O
+  *AFIO_EN_reg &= ~0x01; //bit 0 disables the AFIO clock
+  *AFIO_EN_reg |= 0x01; //bit 0 enables the AFIO clock
+  
   //Iterate through all pin configuration
   for(uint8_t i = 0; i < NUM_OF_PINS_CONFIGURE; i++){
     temp_pin_conf_str = GPIO_conf_cst[i];
@@ -184,5 +328,7 @@ void GPIO_Init(void){
      
     *CR_reg_u32 &= ~(pins_position_mapped_u32); //clear current cnf_mode configuration of the pin
     *CR_reg_u32 |= CNF_MODE_bits_mapped_u32; //configure new cnf_mode bits
+		
+		EXTI_Configure(i); //Configure EXT interrupt for corresponding pin
   }
 }

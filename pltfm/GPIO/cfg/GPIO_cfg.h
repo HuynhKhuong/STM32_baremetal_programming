@@ -6,20 +6,39 @@
 Define structures to add configurations to GPIO peripherals
 *************************/
 #include "stm32f10x.h"
-
+#include "NVIC_pri.h"
 //A struct containing a pin level configuration
 
 //The procedure includes 2 steps: 
 //1. RCC configuration
 //2. Pin configuration (GPIO registers)
 
-#define NUM_OF_PINS_CONFIGURE         (uint32_t)6
+#define NUM_OF_PINS_CONFIGURE         (uint32_t)7
 //Because the configuration is for pin level, Some configurations for port level are common and no need to 
 //repeat the some steps. Flags are used to indicate whether the configuration is done before or not 
 extern uint8_t is_portA_configured;
 extern uint8_t is_portB_configured;
 extern uint8_t is_portC_configured;
 extern uint8_t is_portD_configured;
+
+///Various pins are attached into a single interrupt line, 
+///this variable is to indicate that the line is attached to a specific pin before
+extern uint8_t is_line_0_configured;
+extern uint8_t is_line_1_configured;
+extern uint8_t is_line_2_configured;
+extern uint8_t is_line_3_configured;
+extern uint8_t is_line_4_configured;
+extern uint8_t is_line_5_configured;
+extern uint8_t is_line_6_configured;
+extern uint8_t is_line_7_configured;
+extern uint8_t is_line_8_configured;
+extern uint8_t is_line_9_configured;
+extern uint8_t is_line_10_configured;
+extern uint8_t is_line_11_configured;
+extern uint8_t is_line_12_configured;
+extern uint8_t is_line_13_configured;
+extern uint8_t is_line_14_configured;
+extern uint8_t is_line_15_configured;
 
 //Member enum specified for RCC configuration for GPIO Port
 typedef enum{
@@ -29,6 +48,15 @@ typedef enum{
   PORT_D_Enable_bit = RCC_APB2ENR_IOPDEN                
 }GPIO_RCC_conf;
 
+typedef enum{
+  PORT_A_pin_x = (uint32_t)0x00,
+  PORT_B_pin_x = (uint32_t)0x01,
+  PORT_C_pin_x = (uint32_t)0x02,
+  PORT_D_pin_x = (uint32_t)0x03,
+  PORT_E_pin_x = (uint32_t)0x04,
+  PORT_F_pin_x = (uint32_t)0x05, 
+  PORT_G_pin_x = (uint32_t)0x06
+}Port_AF_Configure_Val;
 
 //Member struct used for configurating RCC for GPIO Port
 typedef struct{
@@ -98,6 +126,27 @@ typedef enum{
   NUM_OF_PINS,
 }PIN_LIST;
 
+/*****************************************************
+ * This section is to configure for EXT Interrupt 
+******************************************************/
+typedef enum{
+  RISING_EDGE = 0,
+  FALLING_EDGE = 1, 
+  BOTH_RISING_FALLING_EDGE = 2,
+  NO_EVENT = 3,
+}TRIGGER_EVENT;
+
+typedef struct{
+  TRIGGER_EVENT interrupt_trigger_event; ///NO_EVENT means that this pin is not configured for interrupt indicating, 
+                                         ///other variables' value would be discarded
+  uint8_t* is_interrupt_line_configured; ///Various pins are attached into a single interrupt line, 
+                                         ///this variable is to indicate that the line is attached to a specific pin before
+  volatile uint32_t* AF_Register;         ///To configure EXTI, this pin must be configured as AF input pin
+  Port_AF_Configure_Val Port;
+  IRQn_Type NVIC_index;
+}EXT_Interrupt_Config;
+
+
 //Main struct
 typedef struct{
   //RCC configuration
@@ -110,7 +159,7 @@ typedef struct{
   GPIO_MODE Pin_Mode; //Input or output 
   GPIO_Input_CNF  Pin_Input_cnf; //Left = NOT_INPUT if this pin is output 
   GPIO_Output_CNF Pin_Output_cnf;//Left = NOT_OUTPUT if this pin is input
-
+  EXT_Interrupt_Config Pin_Interrupt_cnf; 
 }GPIO_conf;
 
 /*-------------------------------------------------------------------------*/
