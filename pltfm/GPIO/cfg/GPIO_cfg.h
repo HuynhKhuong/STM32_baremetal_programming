@@ -68,8 +68,9 @@ typedef struct{
 typedef enum{
   ANALOG = 0,
   FLOATING_INPUT = 1,
-  PUPD_INPUT = 2,
-  NOT_INPUT = 3
+  PU_INPUT = 2,
+  PD_INPUT = 3, 
+  NOT_INPUT = 4,
 }GPIO_Input_CNF;
 
 //Member enum to identify Output configuration
