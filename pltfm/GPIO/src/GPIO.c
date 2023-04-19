@@ -1,7 +1,7 @@
 #include "GPIO.h"
 
 ///  @brief: an internal functions helping to re-map pin index to its position in BSRR register
-static uint32_t BSRR_Remapping(uint32_t PIN, uint32_t bit_state){
+uint32_t BSRR_Remapping(uint32_t PIN, uint32_t bit_state){
   //BSRR register is 32-bit long, devided into 2 sections
   //16 high bits are used to reset state of 16 pins 
   //16 low bits are used to set state of 16 pins 

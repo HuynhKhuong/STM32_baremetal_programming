@@ -73,7 +73,7 @@ const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE] = {
   PIN_1,
   1, //reg CRL not CRH
   INPUT_MODE,
-  PUPD_INPUT,
+  PD_INPUT,
   NOT_OUTPUT,
   {
     NO_EVENT,
@@ -183,7 +183,7 @@ const GPIO_conf GPIO_conf_cst[NUM_OF_PINS_CONFIGURE] = {
   PIN_0,
   1, //reg CRL not CRH
   INPUT_MODE,
-  PUPD_INPUT,
+  PU_INPUT,
   NOT_OUTPUT,
   {
     BOTH_RISING_FALLING_EDGE,
@@ -308,7 +308,15 @@ void GPIO_Init(void){
     //Pin configuration
     CNF_MODE_bits_u8 = temp_pin_conf_str.Pin_Mode;
     if(CNF_MODE_bits_u8 == INPUT_MODE){
-      CNF_MODE_bits_u8 |= (((uint8_t)temp_pin_conf_str.Pin_Input_cnf) << 2); //cnf_bits are 2 bit high, mode_bits are 2 bit low
+      if(temp_pin_conf_str.Pin_Input_cnf == PD_INPUT){
+        ///This logic is specific for PD_Input, 
+        ///   as PD_Input, PU_Input would have the same configuration value in CNF register
+        ///   However, the value of PD_Input - 1 =  PU_Input (which is the right configuration value in CNF_register)
+        CNF_MODE_bits_u8 |= (((uint8_t)temp_pin_conf_str.Pin_Input_cnf - 1) << 2); //cnf_bits are 2 bit high, mode_bits are 2 bit low
+      }
+      else{
+        CNF_MODE_bits_u8 |= (((uint8_t)temp_pin_conf_str.Pin_Input_cnf) << 2); //cnf_bits are 2 bit high, mode_bits are 2 bit low
+      }
     }
     else{
       CNF_MODE_bits_u8 |= (((uint8_t)temp_pin_conf_str.Pin_Output_cnf) << 2); //cnf_bits are 2 bit high, mode_bits are 2 bit low
@@ -329,6 +337,19 @@ void GPIO_Init(void){
     *CR_reg_u32 &= ~(pins_position_mapped_u32); //clear current cnf_mode configuration of the pin
     *CR_reg_u32 |= CNF_MODE_bits_mapped_u32; //configure new cnf_mode bits
 		
+    //This is specific for input pin: i
+    // - if the pin is configured as pull-up, then set its bit in ODR register to 1
+    // - if the pin is configured as pull-down, then set its bit in ODR register to 0  
+    if(temp_pin_conf_str.Pin_Mode == INPUT_MODE){
+      if(temp_pin_conf_str.Pin_Input_cnf == PU_INPUT){//manipulate output via BSRR register 
+				temp_pin_conf_str.GPIO_Port->BSRR = BSRR_Remapping(temp_pin_conf_str.PIN_Index, 1);
+      }
+      else if(temp_pin_conf_str.Pin_Input_cnf == PD_INPUT){
+        //By default the pin is configured as PD_INPUT (If the configuration in CNF register is Pull-up Pull-down input)
+        //Do nothing
+      }
+    }
+
 		EXTI_Configure(i); //Configure EXT interrupt for corresponding pin
   }
 }
