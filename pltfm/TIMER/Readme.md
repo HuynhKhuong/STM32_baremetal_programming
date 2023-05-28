@@ -86,7 +86,7 @@ The counter counts from 0 to the **auto-reload value** '''(content of the TIMx_A
 ### b. Interrupt/Events
 #### Update event
 - The **update event** is generated everytime overflow/underflow event occurs. 
-- Setting the UG bit in the TIMx_EGR register (by software or by using the slave mode controller) also generates an update event.
+- Setting the **UG bit** in the TIMx_EGR register (by software or by using the slave mode controller) also generates an update event.
 - If setting the **URS bit** (update request selection) in **TIMx_CR1 register** -> When setting the **UG bit** -> generates an update event **UEV** -> **No generates**  interrupt or DMA request (no setting the **UIF flag**).
 > This is to avoid generating both update and capture interrupts when clearing the counter on the capture event.  When an update event occurs, all the registers are updated and the update flag (UIF bit in TIMx_SR register) is set (depending on the URS bit) 
 
@@ -95,7 +95,10 @@ The counter counts from 0 to the **auto-reload value** '''(content of the TIMx_A
 > This is to avoid updating the shadow registers while writing new values in the preload registers. 
 
 #### Output compare event 
-The Output compare interrupt flag of channels configured in output is set when: the counter counts down (Center aligned mode 1, CMS = "01"), the counter counts up (Center aligned mode 2, CMS = "10") the counter counts up and down (Center aligned mode 3, CMS = "11").
+The **Output compare interrupt flag** of channels configured in output is set when: 
+- The counter counts down (Center aligned mode 1, CMS = "01"), 
+- The counter counts up (Center aligned mode 2, CMS = "10") 
+- The counter counts up and down (Center aligned mode 3, CMS = "11").
 
 ## 3. HOW TO CONFIGURE A FULLY FUNCTIONED TIMER IN THIS PROJECT
 

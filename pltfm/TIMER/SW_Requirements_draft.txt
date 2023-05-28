@@ -1,3 +1,52 @@
 INTERNAL REQUIREMENTS CREATED TO DEVELOP TIMER MODULE 
 
 Note: This is a draft, after finish development phase, this draft would be deleted
+
+REQUIREMENT 1 
+Software has an interface for user to add their configuration of timer: 
+The essential information Software needs: 
+- Timer node 
+- Register 
+- Status register
+
+REQUIREMENT 2
+Software should provide user their available Timer nodes
+
+REQUIREMENT 3 
+Software's configuration allows user to opt for their desired timer mode: 
+- Counter mode (Current development)
+- Output compare (Not yet develop) - 
+- Input Capture (Not yet develop)  -
+- PWM (Not yet develop) - 
+
+REQUIREMENT 3-1 
+Software's configuration allows user to input their desired information for timer: 
+- ARR
+- COUNTER
+- PRESCALER value: 
+
+REQUIREMENT 3-1-1: 
+- For user PRESCALER: User should input their desired period (T) only  
+- Their view about clock tree should be hidden
+- Software should provide user whether their input is valid or not with current clock tree configuration
+
+REQUIREMENT FOR COUNTER MODE: 
+REQUIREMENT 4 
+Software's configuration allows user to opt for their desired counter mode: 
+- Upcount
+- Downcount
+
+REQUIREMENT 5
+Software's configuration allows user to choose whether they want update event or not: 
+- UDIS bit 
+
+REQUIREMENT 6
+Software's configuration allows user to choose whether they want update interrupt or not: 
+- UIE bit 
+- Interrupt priority setup
+
+REQUIREMENT 7
+Software must handle interrupt if user choose update interrupt: 
+- Handle turning off interrupt flag 
+- Provide user with interrupt handle function
+-
