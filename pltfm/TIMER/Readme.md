@@ -2,7 +2,7 @@
 
 **Note:** This introduction Focuses mainly on Timer peripherals which support full common features presented by STM32 manufactorer
 
-## 1. FUNCTIONALITY SUPPORTED BY STM32's TIMER
+## 1. FUNCTIONALITY SUPPORTED BY STM32's TIMER 
 [*reference*](https://www.st.com/resource/en/reference_manual/rm0008-stm32f101xx-stm32f102xx-stm32f103xx-stm32f105xx-and-stm32f107xx-advanced-armbased-32bit-mcus-stmicroelectronics.pdf)
 
 STM32 provides The **advanced-control timers** and **general-purpose timers**  which consist of a **16-bit auto-reload counter** driven by a **programmable prescaler**.
@@ -63,6 +63,39 @@ The counter, the auto-reload register and the prescaler register can be written 
 
 The counter is clocked by the prescaler output CK_CNT, which is enabled only when the **counter enable bit (CEN)** in TIMx_CR1 register is set 
 
+Besides, The Timer unit contains: 
+- Control register (TIMx_CR)
+- Interrupt enable register (TIMx_DIER)
+- Event generation register (TIMx_EGR)
+
+## 4. FUNCTIONALITY BEHAVIOUR OF EACH MODE
+### a. Counter modes
+#### Upcounting mode: 
+
+The counter counts from 0 to the **auto-reload value** (content of the **TIMx_ARR register**), then restarts from 0 and generates a counter overflow event.
+
+#### Downcounting mode: 
+The counter counts from the **auto-reload value** (content of the TIMx_ARR register) down to 0, then restarts from the **auto-reload value** and generates a counter underflow event.
+
+#### Center-aligned mode:
+The counter counts from 0 to the **auto-reload value** '''(content of the TIMx_ARR register) – 1''', generates a counter **overflow** event, then counts from the **auto-reload value** down to 1 and generates a counter **underflow** event. Then it restarts counting from 0.
+
+***notes***: Center-aligned mode is active when the **CMS bits** in TIMx_CR1 register > '00'. 
+***notes*** In this mode, the DIR direction bit in the TIMx_CR1 register cannot be written. It is updated by hardware and gives the current direction of the counter.
+
+### b. Interrupt/Events
+#### Update event
+- The **update event** is generated everytime overflow/underflow event occurs. 
+- Setting the UG bit in the TIMx_EGR register (by software or by using the slave mode controller) also generates an update event.
+- If setting the **URS bit** (update request selection) in **TIMx_CR1 register** -> When setting the **UG bit** -> generates an update event **UEV** -> **No generates**  interrupt or DMA request (no setting the **UIF flag**).
+> This is to avoid generating both update and capture interrupts when clearing the counter on the capture event.  When an update event occurs, all the registers are updated and the update flag (UIF bit in TIMx_SR register) is set (depending on the URS bit) 
+
+- If setting '1' the **UDIS bit** in the **TIMx_CR1 register**, The UEV event generation will be disabled   
+- If resetting '0' the **UDIS bit** in the **TIMx_CR1 register**, the UEV event generation will be enabled  
+> This is to avoid updating the shadow registers while writing new values in the preload registers. 
+
+#### Output compare event 
+The Output compare interrupt flag of channels configured in output is set when: the counter counts down (Center aligned mode 1, CMS = "01"), the counter counts up (Center aligned mode 2, CMS = "10") the counter counts up and down (Center aligned mode 3, CMS = "11").
 
 ## 3. HOW TO CONFIGURE A FULLY FUNCTIONED TIMER IN THIS PROJECT
 
