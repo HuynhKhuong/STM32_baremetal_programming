@@ -1,0 +1,3 @@
+INTERNAL REQUIREMENTS CREATED TO DEVELOP TIMER MODULE 
+
+Note: This is a draft, after finish development phase, this draft would be deleted
